@@ -1,0 +1,18 @@
+.env
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Old standalone agent (archived, superseded by plugin)
+mini-agent-fork/
+
+# Local design docs, research, and framing (not part of the distributable plugin)
+CLAUDE.md
+SOUL.md
+research/
+docs/
+tests/
