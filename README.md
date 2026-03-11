@@ -255,7 +255,7 @@ Transitions happen within a session and in both directions. You might start in S
 ├─────────────────────────────────────────────────┤
 │  MCP Server — State management                  │
 │  Learner diary · Plan tree · Quadrant state     │
-│  Engagement signals (narrative, not numeric)     │
+│  Engagement signals (narrative, not numeric)    │
 └─────────────────────────────────────────────────┘
 ```
 
