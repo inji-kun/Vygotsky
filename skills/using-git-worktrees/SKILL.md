@@ -17,7 +17,7 @@ they'll make changes in the wrong place.
 
 ### 1. Check Understanding
 
-Call `check_concept` for git worktrees. If the diary has no entries:
+Call `get_concept` for git worktrees. If the diary has no entries:
 - "Quick context — a worktree gives us a second checkout of the repo in a separate
   directory, on its own branch. Changes in one don't affect the other. We'll use it
   to keep main stable while we work."
@@ -59,8 +59,7 @@ When work is done and merged:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "They know which directory they're in" | Two worktrees means two chances to be confused. State it. |
-| "Worktrees are simple, no need to explain" | Simple concept, easy to lose track of in practice. Orient every time. |
-| "I'll skip the safety checks, it's faster" | A conflicting worktree wastes more time than the check takes. |
+If you catch yourself rationalizing why orientation isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "They know which directory they're in" — two worktrees means two chances to be confused. State it.

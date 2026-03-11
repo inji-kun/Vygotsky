@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Use when exploring a new feature, refactoring idea, or design problem. Builds shared understanding of the problem space before any code is written. No code until design is presented, discussed, and approved."
+description: "Use when the user explicitly asks to brainstorm, explore design options, or discuss architecture before coding. Not for straightforward implementation requests."
 ---
 
 # Brainstorming
@@ -68,9 +68,7 @@ After genuine engagement:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "The design is obvious, let's just start coding" | If it's obvious, articulating it takes 30 seconds. If it's not, you just saved hours. |
-| "They said 'just do it'" | Acknowledge their urgency. Present the design briefly. A 2-minute discussion prevents a 2-hour rewrite. |
-| "I already know the best approach" | You might. But if the human doesn't understand *why*, they can't extend it, debug it, or maintain it. |
-| "Exploring alternatives will slow us down" | The brainstorm IS the work. Code without shared theory is technical debt with interest. |
+If you catch yourself rationalizing why brainstorming isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "The design is obvious" — if it's obvious, articulating it takes 30 seconds. If not, you just saved hours.

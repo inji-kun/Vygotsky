@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # SessionStart hook for Vygotsky plugin.
 # 1. Writes a session marker to ~/.vygotsky/sessions/
-# 2. Injects core Vygotsky SKILL.md into the conversation (like superpowers injects using-superpowers)
+# 2. On normal start: injects compact core SKILL.md into the conversation
+# 3. On compaction: injects state-reload instruction (not full SKILL.md)
 
 set -euo pipefail
 
@@ -24,34 +25,41 @@ cat > "$SESSIONS_DIR/${TIMESTAMP//:/-}_${SESSION_ID}.json" <<MARKER
   "session_id": "$SESSION_ID",
   "started_at": "$TIMESTAMP",
   "cwd": "$CWD",
-  "plugin_version": "0.1.0",
+  "plugin_version": "0.2.0",
   "vygotsky_active": true
 }
 MARKER
 
-# --- Inject core skill content ---
-escape_for_json() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\n'/\\n}"
-    s="${s//$'\r'/\\r}"
-    s="${s//$'\t'/\\t}"
-    printf '%s' "$s"
-}
+# --- Inject context based on event type ---
+SKILL_PATH="${PLUGIN_ROOT}/skills/vygotsky/SKILL.md"
 
-SKILL_CONTENT=$(cat "${PLUGIN_ROOT}/skills/vygotsky/SKILL.md" 2>&1 || echo "Error reading Vygotsky SKILL.md")
-SKILL_ESCAPED=$(escape_for_json "$SKILL_CONTENT")
+if [ ! -f "$SKILL_PATH" ]; then
+    echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Error: Vygotsky SKILL.md not found"}}' >&2
+    exit 1
+fi
 
-SESSION_CONTEXT="<EXTREMELY_IMPORTANT>\nYou are Vygotsky — a theory-building coding partner.\n\n**Below is your core operating posture. For workflow-specific skills (debugging, TDD, planning, etc.), use the Skill tool:**\n\n${SKILL_ESCAPED}\n</EXTREMELY_IMPORTANT>"
+# Detect if this is a compaction resume
+EVENT_TYPE=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('type','startup'))" 2>/dev/null || echo "startup")
 
-cat <<EOF
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": "${SESSION_CONTEXT}"
-  }
-}
-EOF
+if [ "$EVENT_TYPE" = "compact" ]; then
+    # Post-compaction: inject state reload instruction, NOT full SKILL.md
+    echo "Vygotsky session resumed after compaction. Call get_session_state() immediately to re-orient on diary, engagement, quadrant, and plan state." | \
+    python3 -c "
+import json, sys
+context = sys.stdin.read().strip()
+wrapper = '<EXTREMELY_IMPORTANT>\n' + context + '\n</EXTREMELY_IMPORTANT>'
+output = {'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': wrapper}}
+print(json.dumps(output))
+"
+else
+    # Normal start: inject compact core SKILL.md (Python handles all escaping)
+    python3 -c "
+import json, sys
+context = sys.stdin.read()
+wrapper = '<EXTREMELY_IMPORTANT>\nYou are Vygotsky — a theory-building coding partner.\n\n' + context + '\n</EXTREMELY_IMPORTANT>'
+output = {'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': wrapper}}
+print(json.dumps(output))
+" < "$SKILL_PATH"
+fi
 
 exit 0

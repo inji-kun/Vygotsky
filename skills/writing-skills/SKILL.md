@@ -75,8 +75,7 @@ Users may want skills that fit their workflow. When adapting:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "This skill doesn't affect theory-building" | Every skill shapes interaction. Check the invariants. |
-| "The description is close enough" | CSO is exact. "Use when" or it won't trigger. |
-| "Token budget doesn't matter" | Long skills get skimmed. Brevity is discipline. |
+If you catch yourself rationalizing why invariant checks aren't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "The description is close enough" — CSO is exact. "Use when" or it won't trigger.

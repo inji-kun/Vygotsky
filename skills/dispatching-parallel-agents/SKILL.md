@@ -65,8 +65,7 @@ The walkthrough builds the human's theory of code they didn't watch being writte
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "The split is obvious, no need to discuss it" | Obvious to you. The human needs to see the boundaries. |
-| "Walking through results will take too long" | 2 minutes of walkthrough prevents 20 minutes of confusion later. |
-| "They can read the code later" | They won't. The walkthrough IS the context. |
+If you catch yourself rationalizing why the walkthrough isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "The split is obvious" — obvious to you. The human needs to see the boundaries.

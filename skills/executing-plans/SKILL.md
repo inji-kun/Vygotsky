@@ -19,7 +19,7 @@ and make sure the human's theory kept up.
 
 1. Call `get_plan_state()` to orient
 2. Identify the concepts this batch touches
-3. Call `check_concept` for each — read what the diary says
+3. Call `get_concept` for each — read what the diary says
 4. If any concept is new territory or has struggle entries, flag it for a
    theory check after the batch
 

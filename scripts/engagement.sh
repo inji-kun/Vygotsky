@@ -1,49 +1,64 @@
 #!/usr/bin/env bash
-# Engagement signal tracker. Runs on UserPromptSubmit.
-# Writes engagement data to ~/.vygotsky/engagement_signals.json
+# Engagement signal logger. Runs on UserPromptSubmit.
+# Writes one JSON line per prompt to ~/.vygotsky/engagement.json
 # Outputs system-reminder context when passive alarm triggers.
 
 INPUT=$(cat)
 
 mkdir -p "$HOME/.vygotsky"
 
-# Pass the full JSON input to Python via stdin (avoids shell injection)
 echo "$INPUT" | python3 -c "
 import json, sys
 from pathlib import Path
+from datetime import datetime, timezone
 
 data = json.load(sys.stdin)
 prompt = data.get('prompt', '')
-
-state_file = Path.home() / '.vygotsky' / 'engagement_signals.json'
-
-# Load current state
-state = {}
-if state_file.exists():
-    try:
-        state = json.loads(state_file.read_text())
-    except Exception:
-        pass
+normalized = prompt.strip().lower().rstrip('.,!?')
 
 passive_patterns = {
     'y','yes','ok','okay','lgtm','sure','fine','go ahead',
     'do it','yep','yeah','k','sounds good','proceed','continue',
-    'approved','approve','ack','roger','whatever','just do it',
-    'idk','skip','dont care',\"i don't care\",\"doesn't matter\"
+    'approved','approve','ack','roger',
+    'ship it','merge it','+1','no changes needed','looks good',
 }
-normalized = prompt.strip().lower().rstrip('.,!?')
 
-consecutive = state.get('consecutive_passive', 0)
-if normalized in passive_patterns:
-    consecutive += 1
-else:
-    consecutive = 0
+deflection_patterns = {
+    'idk','i don\'t know','i dont know','no idea','just do it',
+    'whatever','you decide','skip','doesn\'t matter','dont care',
+    'i don\'t care','not sure',
+}
 
-state['consecutive_passive'] = consecutive
-state['last_prompt_length'] = len(prompt.split())
-state_file.write_text(json.dumps(state, indent=2))
+passive = normalized in passive_patterns or normalized in deflection_patterns
+deflection = normalized in deflection_patterns
 
-# Output context injection if passive alarm
+# Append signal to log
+log_path = Path.home() / '.vygotsky' / 'engagement.json'
+entry = json.dumps({
+    'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'passive': passive,
+    'deflection': deflection,
+    'prompt': prompt,
+})
+
+with open(log_path, 'a') as f:
+    f.write(entry + '\n')
+
+# Count consecutive passive from end of log
+consecutive = 0
+if log_path.exists():
+    lines = log_path.read_text().strip().split('\n')
+    for line in reversed(lines):
+        try:
+            e = json.loads(line)
+            if e.get('passive'):
+                consecutive += 1
+            else:
+                break
+        except Exception:
+            break
+
+# Output alarm context if threshold exceeded
 if consecutive >= 3:
     result = {
         'additionalContext': (
@@ -56,4 +71,4 @@ if consecutive >= 3:
         )
     }
     print(json.dumps(result))
-"
+" || exit 1

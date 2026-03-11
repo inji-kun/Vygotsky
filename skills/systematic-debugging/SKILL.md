@@ -26,7 +26,7 @@ Then involve the human:
 You're not testing them. You're doing what colleagues do: pooling intuitions
 before diving in.
 
-Call `check_concept` for concepts the bug touches. If the diary shows gaps,
+Call `get_concept` for concepts the bug touches. If the diary shows gaps,
 this is where theory-building and debugging become the same activity.
 
 ### Phase 2: Build the Mental Model
@@ -68,9 +68,7 @@ Once root cause is confirmed:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "I already know the fix, let's just apply it" | If you can't explain the root cause, you know a patch, not a fix. |
-| "The human doesn't need to understand this detail" | If the bug is in the internals, the internals are now part of the theory. |
-| "Asking for their hypothesis will slow us down" | 10 seconds of "what's your read?" saves 10 minutes of explaining a fix they don't understand. |
-| "The prediction step is overkill for a simple bug" | Simple bugs with wrong predictions reveal model gaps. That's the whole point. |
+If you catch yourself rationalizing why systematic investigation isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "I already know the fix" — if you can't explain the root cause, you know a patch, not a fix.
