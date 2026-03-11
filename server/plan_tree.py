@@ -77,6 +77,7 @@ class PlanTree:
 
     def _save_tree(self) -> None:
         """Persist the tree skeleton to tree.json."""
+        from server.util import atomic_write
         plan_dir = self._plan_dir()
         data = {
             "steps": {k: v.to_dict() for k, v in self.steps.items()},
@@ -84,10 +85,11 @@ class PlanTree:
             "next_id": self._next_id,
             "plan_id": self._current_plan_id,
         }
-        (plan_dir / "tree.json").write_text(json.dumps(data, indent=2))
+        atomic_write(plan_dir / "tree.json", json.dumps(data, indent=2))
 
     def _write_step_markdown(self, step: PlanStep, reasoning: str = "") -> None:
         """Write the step's markdown file."""
+        from server.util import atomic_write
         plan_dir = self._plan_dir()
         content = f"# {step.description}\n\n"
         if reasoning:
@@ -97,7 +99,7 @@ class PlanTree:
             parent = self.steps.get(step.parent_id)
             if parent:
                 content += f"**Parent:** {parent.description}\n"
-        (plan_dir / f"{step.id}.md").write_text(content)
+        atomic_write(plan_dir / f"{step.id}.md", content)
 
     def plan_step(
         self,
@@ -110,6 +112,13 @@ class PlanTree:
         No parent_id = top-level step (starts a new plan if none active).
         With parent_id = decomposition of an existing step.
         """
+        # Validate parent_id exists before creating step
+        if parent_id and parent_id not in self.steps:
+            return {
+                "error": f"parent_id '{parent_id}' not found.",
+                "suggestion": "Call get_plan_state() to see existing steps.",
+            }
+
         step_id = self._gen_step_id()
 
         if parent_id and parent_id in self.steps:
@@ -150,9 +159,10 @@ class PlanTree:
         step.completed_at = time.time()
 
         # Write summary markdown
+        from server.util import atomic_write
         plan_dir = self._plan_dir()
         summary_content = f"# {step.description} — Summary\n\n{summary}\n"
-        (plan_dir / f"{step_id}_summary.md").write_text(summary_content)
+        atomic_write(plan_dir / f"{step_id}_summary.md", summary_content)
 
         # Move current to parent
         if self.current_step_id == step_id:
