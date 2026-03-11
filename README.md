@@ -255,7 +255,7 @@ Transitions happen within a session and in both directions. You might start in S
 ├─────────────────────────────────────────────────┤
 │  MCP Server — State management                  │
 │  Learner diary · Plan tree · Quadrant state     │
-│  Engagement signals (structural, not keyword)   │
+│  Engagement signals (narrative, not numeric)     │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -306,6 +306,7 @@ Vygotsky tries to.
 
 ```bash
 claude --plugin-dir .   # run locally
+conda run -n Vygotsky python3 -m pytest tests/ -v   # run tests
 ```
 
 ## License
