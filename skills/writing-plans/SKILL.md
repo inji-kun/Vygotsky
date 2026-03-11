@@ -25,7 +25,7 @@ Design: [link or summary of the brainstorming output]
 Concepts: [list concepts from diary this plan touches]
 ```
 
-Call `check_concept` for each listed concept. If any are new territory or have
+Call `get_concept` for each listed concept. If any are new territory or have
 struggle entries, note them — those are your theory-check points.
 
 ### Tasks
@@ -68,8 +68,7 @@ Insert a theory-check point when:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "Theory-check points will make the plan too long" | They're one-line annotations. If your plan can't absorb a one-liner, it's already too dense. |
-| "Just one big task, it's simpler" | A 20-minute task with no checkpoints is 20 minutes of silent accumulation. Break it up. |
-| "The human will find concept tags patronizing" | Concept tags are for YOU — they tell you when to read the diary during execution. |
+If you catch yourself rationalizing why planning isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "Just one big task, it's simpler" — a 20-minute task with no checkpoints is 20 minutes of silent accumulation.

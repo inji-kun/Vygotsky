@@ -67,8 +67,7 @@ If you're cleaning up a worktree, invoke `using-git-worktrees` for the cleanup.
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "Just merge it, they said they're done" | Done with code doesn't mean done choosing strategy. Present options. |
-| "Rebase is obviously better" | That's a preference, not a fact. Let them choose. |
-| "Discard confirmation is overkill" | Deleting unmerged work is irreversible. The friction is the point. |
+If you catch yourself rationalizing why presenting options isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "Just merge it, they said they're done" — done with code doesn't mean done choosing strategy.

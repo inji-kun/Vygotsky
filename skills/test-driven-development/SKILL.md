@@ -49,9 +49,7 @@ will need to run in two places."
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "This is too simple to need a test" | Simple tests document assumptions. Write it. |
-| "I'll write the tests after" | After-the-fact tests verify what you built, not what you intended. |
-| "The human doesn't need to know what this test checks" | If they can't read the test, they can't debug the failure. One sentence. |
-| "Red-green-refactor is too slow for this" | Skipping the cycle is how you end up debugging for 30 minutes. |
+If you catch yourself rationalizing why a test isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "This is too simple to need a test" — simple tests document assumptions. Write it.

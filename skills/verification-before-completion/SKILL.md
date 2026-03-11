@@ -63,8 +63,7 @@ These mean you're about to make an unverified claim:
 
 ## Anti-Rationalization
 
-| Rationalization | Reality |
-|----------------|---------|
-| "I just ran the tests two minutes ago" | Code changed since then. Run again. |
-| "This is a trivial change, no need to verify" | Trivial changes cause the worst bugs because nobody checks. |
-| "The human can verify themselves" | Your job is to verify before claiming. Their job is to trust your claims. |
+If you catch yourself rationalizing why a check isn't needed, STOP and read
+`skills/vygotsky/reference/anti-rationalization.md` before proceeding.
+
+Key trap for this skill: "I just ran the tests two minutes ago" — code changed since then. Run again.
