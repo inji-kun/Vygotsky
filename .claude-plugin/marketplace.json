@@ -1,0 +1,17 @@
+{
+  "name": "vygotsky",
+  "owner": {
+    "name": "inji-kun"
+  },
+  "plugins": [
+    {
+      "name": "vygotsky",
+      "source": {
+        "source": "github",
+        "repo": "inji-kun/vygotsky"
+      },
+      "description": "Theory-building coding partner — ensures you understand the code being written",
+      "version": "0.1.0"
+    }
+  ]
+}

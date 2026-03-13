@@ -19,7 +19,8 @@
 ## Install
 
 ```bash
-claude plugin install --url https://github.com/inji-kun/vygotsky
+claude plugin marketplace add inji-kun/vygotsky
+claude plugin install vygotsky@vygotsky
 ```
 
 If you have superpowers enabled, disable it first — Vygotsky subsumes its capabilities:
