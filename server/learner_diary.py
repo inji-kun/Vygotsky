@@ -24,7 +24,7 @@ ENTRY_PATTERN = re.compile(r"### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\
 VALID_EVIDENCE_TYPES = {
     "prediction", "explanation", "question", "application", "transfer",
     "correction", "disagreement", "directive", "design_decision",
-    "gap", "acknowledgment",
+    "gap", "acknowledgment", "calibration",
 }
 
 

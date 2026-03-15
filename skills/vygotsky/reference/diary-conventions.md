@@ -1,5 +1,19 @@
 # Diary Conventions
 
+## Recording Discipline
+
+**Target: 2-3 `record_observation` calls per session total (across all types).**
+
+The diary builds a model of a person across sessions. A reasonable picture emerges
+after a handful of sessions — some within-session signals are genuinely strong
+(clear demonstration, accurate self-report, revealing mistake), others are noise.
+No hard rule: be wary of overfitting, hold single-session observations lightly
+unless the signal is unusually clear. When uncertain, record the uncertainty or
+don't record at all.
+
+`record_observation` returns silently. The diary is Claude's private working memory,
+not a report card for the developer.
+
 ## Writing Diary Entries
 
 Call `record_observation(concept, observation, evidence_type)` after the human
@@ -20,16 +34,30 @@ demonstrates understanding, struggles with something, or engages meaningfully.
 | `design_decision` | Mastery | Made architectural choice with reasoning |
 | `gap` | Gap | Revealed missing prerequisite |
 | `acknowledgment` | Low | Acknowledged without demonstrating (DEFAULT) |
+| `calibration` | Internal | Claude adjusting its own engagement strategy |
+
+### The `calibration` type
+
+Use `calibration` when adjusting engagement strategy mid-session — it's Claude's
+private reasoning voice, not an observation about the developer. Counts toward
+the 2-3 session total. Use only when a genuine strategy shift is happening.
+
+Good calibration entry:
+> "Three rubber-stamps on DB schema decisions. Feels like overwhelm not disinterest.
+> Shifting SP → Sparring. Will surface FK tradeoff explicitly rather than presenting
+> a solution. If engagement picks up, move back to SP."
 
 ### Good Diary Entries
 
 - **Specific**: "Explained JWT vs session tokens clearly. Chose JWT because the API is stateless."
 - **Behavioral**: "Asked about error propagation in promise chains"
-- **Linked**: "This connects to [[error_handling]] — they struggled with try/catch in async."
+- **Linked**: "This connects to [[error-handling]] — they struggled with try/catch in async."
 - **Contextual**: "During the webhook handler implementation"
+- **Honest about uncertainty**: "May be navigating by intuition — needs more sessions to confirm."
 
 ### Bad Diary Entries
 
 - Scores: "7/10 understanding" — never.
 - Vague: "Did well" — useless.
 - Assumptions: "Probably understands X" — if you didn't observe it, don't write it.
+- Overfit: Recording every exchange — the model gets noisier, not richer.

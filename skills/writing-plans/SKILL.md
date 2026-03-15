@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: "Use when translating a design into an implementation plan. Produces bite-sized tasks (2-5 min each) with exact file paths, TDD integration, and theory-check points at concept boundaries."
+description: "Use when translating a design into an implementation plan. Produces a recursive file-based plan tree with bite-sized tasks, theory-check points, and cross-cutting discovery tracking."
 ---
 
 # Writing Plans
@@ -13,58 +13,92 @@ A plan that only tracks files and functions is half a plan. The other half is: w
 does the human need to understand at each step, and where are the natural moments
 to check?
 
-## Plan Structure
+## Plan Storage
 
-### Header
+Plans live in `.claude/plans/` — markdown files + a JSON index. They're git-tracked,
+human-readable, and survive compaction. No MCP tools needed.
 
-Reference the design that produced this plan and the diary concepts it touches:
+### index.json
 
+Flat skeleton of all nodes. Compact — titles, statuses, parent IDs only.
+
+```json
+{
+  "01":       {"t": "Root goal",        "s": "active",   "p": null},
+  "01-01":    {"t": "Sub-task A",       "s": "planned",  "p": "01"},
+  "01-01-01": {"t": "Leaf task",        "s": "planned",  "p": "01-01"}
+}
 ```
-## Plan: [Feature Name]
-Design: [link or summary of the brainstorming output]
-Concepts: [list concepts from diary this plan touches]
+
+Status values: `planned` | `active` | `completed` | `blocked` | `needs-revision`
+
+### Plan file format
+
+Each node gets a `.md` file named after its ID:
+
+```markdown
+# [Task Name]
+**ID:** 01-01
+**Breadcrumb:** Root goal → Sub-task A
+**Status:** planned
+**Children:** 01-01-01, 01-01-02
+
+## Goal
+[What this task achieves]
+
+## Steps
+[Concrete steps — exact file paths, function signatures, TDD-shaped where possible]
+
+## Theory-Check Points
+--- theory check recommended if [[concept]] is new territory ---
+
+## Discoveries
+[Cross-cutting findings that affect other branches — logged here when found]
+
+## Notes from other branches
+[Findings from sibling/cousin tasks that affect this one]
 ```
 
-Call `get_concept` for each listed concept. If any are new territory or have
-struggle entries, note them — those are your theory-check points.
+## Recursion
 
-### Tasks
+Decompose until tasks are 2-5 minutes of work. There's no depth limit — go as
+deep as the problem requires (depth 4-5 is common for complex features).
 
-Each task must be:
-- **Bite-sized**: 2-5 minutes of work. If it's bigger, decompose it.
-- **Concrete**: Exact file paths. Exact function signatures. No ambiguity.
-- **TDD-shaped**: Test first where possible. "Write test for X" and "Implement X"
-  are separate tasks.
-- **Concept-tagged**: Note which diary concept(s) this task touches.
+When to recurse: a step is bigger than 5 minutes, crosses an abstraction boundary,
+or involves a concept the diary flags as new territory.
 
-### Theory-Check Points
+ID convention: `01` → `01-01` → `01-01-01` → `01-01-01-01`. Breadcrumb in each
+file gives navigation context without loading the whole tree.
 
-At natural boundaries — where the work shifts from one concept to another, or
-where a new abstraction is introduced — include:
+## Cross-Cutting Updates
+
+When work at one leaf reveals implications for other branches:
+
+1. Log the discovery in the current file's `## Discoveries` section
+2. Update affected files with a `## Notes from other branches` entry
+3. Set affected nodes to `needs-revision` in index.json
+4. Claude reads the index skeleton (already in context) to identify affected branches,
+   loads only those files, edits them
+
+## Writing the Plan
+
+1. Read `index.json` if it exists — orient to existing plan state
+2. Identify the top-level tasks and decompose recursively
+3. Create `.md` files and update `index.json` for each node
+4. Present the plan tree to the human
+5. Wait for their input — they may reorder, cut, or add tasks
+6. After agreement, invoke the **executing-plans** skill
+
+## Theory-Check Points
+
+At natural boundaries — abstraction crossings, new concepts, batch-level handoffs:
 
 ```
 --- theory check recommended if [[concept]] is new territory ---
 ```
 
-These are not gates. They're reminders. When you reach one during execution, read
-the diary for that concept. If the human has demonstrated understanding, skip it.
-If not, pause and check in.
-
-### Boundary Heuristics
-
-Insert a theory-check point when:
-- The next task introduces a concept with no diary entries
-- The next task touches a concept the diary says the human struggled with
-- You're crossing an abstraction boundary (e.g., data layer to API layer)
-- The upcoming batch depends on understanding something from the previous batch
-
-## Writing the Plan
-
-1. Call `get_plan_state()` to check for existing plan context
-2. Call `plan_step(description, parent_id?, reasoning?)` for each top-level task
-3. Present the full plan to the human
-4. Wait for their input — they may reorder, cut, or add tasks
-5. After agreement, invoke the **executing-plans** skill
+Not gates. Reminders. During execution, read the diary. If the human has demonstrated
+understanding, skip it. If not, pause and check in.
 
 ## Anti-Rationalization
 

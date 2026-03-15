@@ -1,0 +1,12 @@
+{
+  "01":       {"t": "v1 Phase 1 — quick wins",              "s": "active",    "p": null},
+  "01-01":    {"t": "Pre-diff preamble in SKILL.md",         "s": "planned",   "p": "01"},
+  "01-02":    {"t": "Remove set_quadrant tool",              "s": "planned",   "p": "01"},
+  "01-03":    {"t": "Rewrite brainstorming skill",           "s": "planned",   "p": "01"},
+  "01-04":    {"t": "Rewrite writing-plans skill",           "s": "planned",   "p": "01"},
+  "01-05":    {"t": "Update executing-plans skill",          "s": "planned",   "p": "01"},
+  "01-06":    {"t": "Remove planning MCP tools + server",    "s": "planned",   "p": "01"},
+  "01-07":    {"t": "Add calibration evidence type",         "s": "planned",   "p": "01"},
+  "01-08":    {"t": "Update diary conventions reference",    "s": "planned",   "p": "01"},
+  "01-09":    {"t": "Update tests + verify",                 "s": "planned",   "p": "01"}
+}

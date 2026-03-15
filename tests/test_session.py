@@ -1,14 +1,14 @@
 from pathlib import Path
 
 
-def test_session_state_includes_all(tmp_path):
+def test_session_state_includes_diary_and_engagement(tmp_path):
     from server.session import Session
     session = Session(state_dir=tmp_path)
     state = session.get_state()
     assert "diary" in state
     assert "engagement" in state
-    assert "quadrant" in state
-    assert "plan" in state
+    # quadrant and plan are no longer in server state — they live in
+    # Claude's reasoning and .claude/plans/ files respectively
 
 
 def test_diary_context_is_narrative(tmp_path):
@@ -18,16 +18,6 @@ def test_diary_context_is_narrative(tmp_path):
     state = session.get_state()
     assert "event loop" in state["diary"]
     assert "score" not in state["diary"].lower()
-
-
-def test_set_and_get_quadrant(tmp_path):
-    from server.session import Session
-    session = Session(state_dir=tmp_path)
-    result = session.set_quadrant("senior_peer")
-    assert "posture" in result
-    state = session.get_state()
-    assert state["quadrant"]["current"] == "senior_peer"
-    assert "posture" in state["quadrant"]
 
 
 def test_concept_summary_for_unknown(tmp_path):
@@ -56,21 +46,6 @@ def test_concept_full_returns_entries(tmp_path):
     assert data["entries"][0]["evidence_type"] == "prediction"
 
 
-def test_default_quadrant_is_senior_peer(tmp_path):
-    from server.session import Session
-    session = Session(state_dir=tmp_path)
-    state = session.get_state()
-    assert state["quadrant"]["current"] == "senior_peer"
-
-
-def test_quadrant_transition_message(tmp_path):
-    from server.session import Session
-    session = Session(state_dir=tmp_path)
-    result = session.set_quadrant("extension")
-    assert "transition" in result
-    assert result["transition"] is not None  # senior_peer -> extension
-
-
 def test_linked_concepts_with_evidence(tmp_path):
     from server.session import Session
     session = Session(state_dir=tmp_path)
@@ -87,3 +62,15 @@ def test_linked_concepts_with_evidence(tmp_path):
     assert linked[0]["concept"] == "promises"
     assert linked[0]["strongest_evidence"] == "prediction"
     assert linked[0]["entries"] == 1
+
+
+def test_calibration_evidence_type_accepted(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    # calibration is Claude's private voice — should be a valid evidence type
+    session.diary.record("async_programming",
+        "Three rubber-stamps. Shifting SP → Sparring.",
+        evidence_type="calibration")
+    entries = session.diary.read("async_programming")
+    assert len(entries) == 1
+    assert entries[0]["evidence_type"] == "calibration"

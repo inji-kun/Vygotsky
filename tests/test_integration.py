@@ -2,14 +2,10 @@
 
 
 def test_full_session_flow(tmp_path):
-    """Simulate a session: plan -> theory check -> diary entry -> complete."""
+    """Simulate a session: theory check -> diary entry -> verify state."""
     from server.session import Session
 
     session = Session(state_dir=tmp_path)
-
-    # Start a plan
-    step1 = session.plan_tree.plan_step("Add user authentication")
-    assert step1["step_id"] == "step_1"
 
     # Check concept — no diary entries yet
     check = session.get_concept_summary("authentication")
@@ -19,7 +15,7 @@ def test_full_session_flow(tmp_path):
     session.diary.record("authentication",
         "Explained JWT vs session tokens clearly. Chose JWT because the "
         "API is stateless. Understands the trade-off with token revocation. "
-        "See also [[session_management]].",
+        "See also [[session-management]].",
         evidence_type="explanation")
 
     # Now the concept has diary entries
@@ -29,25 +25,12 @@ def test_full_session_flow(tmp_path):
 
     # Links are tracked
     links = session.diary.get_links("authentication")
-    assert "session_management" in links
+    assert "session-management" in links
 
-    # Decompose into substep
-    step2 = session.plan_tree.plan_step("Design JWT schema", parent_id="step_1")
-    assert "Add user authentication" in step2["breadcrumb"]
-
-    # Complete substep
-    result = session.plan_tree.complete_step(step2["step_id"], "JWT with bcrypt chosen")
-    assert result is not None
-
-    # Claude sets quadrant based on diary + engagement reading
-    result = session.set_quadrant("senior_peer")
-    assert "posture" in result
-
-    # Full state should reflect everything
+    # Full state should reflect diary and engagement
     state = session.get_state()
-    assert state["quadrant"]["current"] == "senior_peer"
     assert "JWT" in state["diary"]  # narrative, not scores
-    assert state["plan"]["breadcrumb"] != ""
+    # Note: quadrant lives in Claude's reasoning; plan lives in .claude/plans/ files
 
 
 def test_engagement_influences_session(tmp_path):
@@ -62,7 +45,6 @@ def test_engagement_influences_session(tmp_path):
     state = session.get_state()
     assert state["engagement"]["is_passive_alarm"] is True
     assert state["engagement"]["consecutive_passive"] >= 3
-    # New: no numeric score, has recent signals instead
     assert "recent_signals" in state["engagement"]
     assert "current_score" not in state["engagement"]
 
@@ -93,7 +75,7 @@ def test_scaffolding_loop_with_evidence(tmp_path):
 
     session = Session(state_dir=tmp_path)
 
-    # Record diverse evidence
+    # Record diverse evidence including calibration
     session.diary.record("database_migrations",
         "Predicted rollback would restore previous schema version",
         evidence_type="prediction")
@@ -101,7 +83,7 @@ def test_scaffolding_loop_with_evidence(tmp_path):
         "Explained why up/down migrations need to be idempotent",
         evidence_type="explanation")
     session.diary.record("database_migrations",
-        "Said ok to adding an index. See [[sql_indexes]].",
+        "Said ok to adding an index. See [[sql-indexes]].",
         evidence_type="acknowledgment")
 
     # Summary should reflect evidence quality
@@ -111,9 +93,9 @@ def test_scaffolding_loop_with_evidence(tmp_path):
     assert "prediction" in summary["evidence_summary"]
 
     # Linked concept should be surfaced
-    assert any(lc["concept"] == "sql_indexes" for lc in summary["linked_concepts"])
+    assert any(lc["concept"] == "sql-indexes" for lc in summary["linked_concepts"])
 
     # Gap in prerequisite should be visible
-    sql_link = [lc for lc in summary["linked_concepts"] if lc["concept"] == "sql_indexes"][0]
+    sql_link = [lc for lc in summary["linked_concepts"] if lc["concept"] == "sql-indexes"][0]
     assert sql_link["entries"] == 0
     assert sql_link["strongest_evidence"] == "none"
