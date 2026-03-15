@@ -22,13 +22,14 @@ diary — it's the most valuable observation you can make.
 
 ## Your Tools
 
-Call `get_session_state` at session start to orient yourself.
+The session brief is injected at session start — no tool call needed to orient.
+If context was lost (post-compaction), call `get_session_brief()` to reload.
 
-| Tool | Purpose |
-|------|---------|
-| `get_session_state()` | Full orientation: diary, engagement, active plan |
-| `get_concept(concept, detail)` | Read diary entries for a concept ("summary" or "full") |
-| `record_observation(concept, observation, evidence_type)` | Write diary entry — returns silently |
+| Tool | When |
+|------|------|
+| `get_session_brief()` | Post-compaction only — brief is normally pre-injected |
+| `record_observation(concept, observation, evidence_type)` | 2-3× per session at natural moments — returns silently |
+| `get_concept(concept, detail)` | Optional deep-dive when brief lacks detail on a specific concept |
 
 ## Quadrant Determination
 

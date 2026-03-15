@@ -7,8 +7,67 @@ def test_session_state_includes_diary_and_engagement(tmp_path):
     state = session.get_state()
     assert "diary" in state
     assert "engagement" in state
-    # quadrant and plan are no longer in server state — they live in
-    # Claude's reasoning and .claude/plans/ files respectively
+
+
+def test_generate_brief_new_developer(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    brief = session.generate_brief()
+    assert "Session Brief" in brief
+    assert "No observations yet" in brief or "None recorded" in brief
+
+
+def test_generate_brief_with_strong_area(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    session.diary.record("async-programming",
+        "Explained event loop clearly, predicted promise chaining behaviour.",
+        evidence_type="prediction")
+    brief = session.generate_brief()
+    assert "async-programming" in brief
+    assert "Strong areas" in brief
+
+
+def test_generate_brief_with_zpd_gap(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    session.diary.record("database-migrations",
+        "Confused about rollback semantics — gap in prerequisite.",
+        evidence_type="gap")
+    brief = session.generate_brief()
+    assert "database-migrations" in brief
+    assert "ZPD boundaries" in brief
+
+
+def test_generate_brief_passive_alarm(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    session.engagement.record_prompt("ok")
+    session.engagement.record_prompt("sure")
+    session.engagement.record_prompt("looks good")
+    brief = session.generate_brief()
+    assert "Passive alarm" in brief or "passive" in brief.lower()
+
+
+def test_generate_brief_excludes_calibration_from_strong_areas(tmp_path):
+    from server.session import Session
+    session = Session(state_dir=tmp_path)
+    # calibration entries should not make a concept appear in strong areas
+    session.diary.record("async-programming",
+        "Shifting to Sparring — rubber stamps detected.",
+        evidence_type="calibration")
+    brief = session.generate_brief()
+    assert "Strong areas" in brief
+    # async-programming should NOT appear in strong areas (calibration-only)
+    lines = brief.split("\n")
+    strong_section = False
+    for line in lines:
+        if "Strong areas" in line:
+            strong_section = True
+        if strong_section and "ZPD" in line:
+            break
+        if strong_section and "async-programming" in line:
+            assert False, "calibration-only concept should not appear in strong areas"
 
 
 def test_diary_context_is_narrative(tmp_path):

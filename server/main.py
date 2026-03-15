@@ -15,16 +15,18 @@ session = Session()
 
 
 @mcp.tool()
-def get_session_state() -> dict:
-    """Get orientation context: learner diary, engagement signals.
-    Call at session start. Use to determine quadrant — don't call mid-session."""
-    return session.get_state()
+def get_session_brief() -> str:
+    """Generate the session brief — structured ~500 token developer model snapshot.
+    Injected at session start by the hook. Only call this mid-session if context
+    was lost (e.g. after compaction). Do not call on every turn."""
+    return session.generate_brief()
 
 
 @mcp.tool()
 def get_concept(concept: str, detail: str = "summary") -> str:
-    """Read diary entries for a concept. detail="summary" for overview with
-    evidence quality and linked concepts. detail="full" for complete history."""
+    """Deep-dive into a concept's diary history. Use only when the session brief
+    doesn't have enough detail — not as a routine mid-session check.
+    detail="summary" for evidence overview, detail="full" for complete history."""
     if detail == "full":
         data = session.get_concept_full(concept)
         if not data["entries"]:
