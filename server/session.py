@@ -8,16 +8,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from server.learner_diary import LearnerDiary
+from server.learner_diary import LearnerDiary, LINK_PATTERN
 from server.engagement import EngagementTracker
+from server.knowledge_graph import KnowledgeGraph, MASTERY_TYPES, GAP_TYPES
 
 DEFAULT_STATE_DIR = Path.home() / ".vygotsky"
 
 
 class Session:
-    """Composes diary and engagement state.
+    """Composes diary, engagement, and knowledge graph state.
 
-    INVARIANT: diary and engagement are initialized on construction.
+    INVARIANT: diary, engagement, and graph are initialized on construction.
     """
 
     def __init__(self, state_dir: Path | None = None):
@@ -26,6 +27,13 @@ class Session:
 
         self.diary = LearnerDiary(self.state_dir / "diary")
         self.engagement = EngagementTracker(self.state_dir / "engagement.json")
+        self.graph = KnowledgeGraph(self.state_dir / "knowledge_graph.db")
+
+    def record_observation(self, concept: str, observation: str, evidence_type: str = "acknowledgment") -> None:
+        """Record a diary entry and update the knowledge graph atomically."""
+        self.diary.record(concept, observation, evidence_type=evidence_type)
+        linked = LINK_PATTERN.findall(observation)
+        self.graph.update_from_entry(concept, evidence_type, linked)
 
     def get_state(self) -> dict:
         """Get raw orientation data: diary and engagement signals."""
@@ -35,87 +43,117 @@ class Session:
         }
 
     def generate_brief(self) -> str:
-        """Generate a ~500 token session brief — structured snapshot of the
-        developer model for injection at session start.
+        """Generate a ~500 token session brief — structured developer model snapshot.
 
-        Derives strong areas, ZPD boundaries, and watch-fors from diary evidence
-        types. No knowledge graph yet (Phase 3) — works directly from diary entries.
+        Uses knowledge graph when available (richer summaries + relationships).
+        Falls back to raw diary entry analysis for new developers.
         """
         concepts = self.diary.list_concepts()
         engagement = self.engagement.get_signals()
 
-        # Categorise concepts by strongest evidence signal
-        strong = []       # mastery-tier evidence
-        zpd = []          # gap or struggle entries
-        acknowledged = [] # acknowledgment-only (low signal)
+        lines = ["## Developer Session Brief"]
 
-        mastery_types = {"transfer", "directive", "design_decision", "disagreement",
-                         "prediction", "explanation"}
-        gap_types = {"gap", "correction"}
+        # --- Strong areas ---
+        # Prefer graph summaries (compacted) over raw entry counts
+        graph_strong = self.graph.get_strong_concepts(min_confidence=0.3)
+        if graph_strong:
+            lines.append("\n**Strong areas** (from knowledge graph):")
+            for node in graph_strong[:5]:
+                concept = node["concept"]
+                if node["compacted"] and node["summary"]:
+                    # Rich: use compacted summary
+                    lines.append(f"  - **{concept}**: {node['summary'][:100]}")
+                else:
+                    lines.append(
+                        f"  - {concept} (confidence: {node['confidence']:.2f}, "
+                        f"{node['entry_count']} entries)"
+                    )
+                # Surface key associations
+                assoc = self.graph.get_associated_concepts(concept)[:2]
+                if assoc:
+                    links = ", ".join(a["concept"] for a in assoc)
+                    lines.append(f"    ↳ linked to: {links}")
+        else:
+            # Fall back: scan diary directly
+            strong = []
+            for concept in concepts:
+                entries = self.diary.read(concept)
+                if not entries:
+                    continue
+                types = {e.get("evidence_type", "acknowledgment") for e in entries}
+                signal_types = types - {"calibration", "acknowledgment"}
+                if signal_types & MASTERY_TYPES:
+                    strongest = next(
+                        t for t in ["transfer", "directive", "design_decision",
+                                    "prediction", "explanation", "disagreement"]
+                        if t in signal_types
+                    )
+                    strong.append((concept, len(entries), strongest))
+            if strong:
+                lines.append("\n**Strong areas** (demonstrated understanding):")
+                for concept, n, evidence in strong[:5]:
+                    lines.append(f"  - {concept} ({n} entries, strongest: {evidence})")
+            else:
+                lines.append("\n**Strong areas:** None recorded yet.")
 
+        # --- ZPD boundaries ---
+        zpd = []
         for concept in concepts:
             entries = self.diary.read(concept)
             if not entries:
                 continue
             types = {e.get("evidence_type", "acknowledgment") for e in entries}
-            # Skip calibration-only entries — they're Claude's voice, not evidence
-            signal_types = types - {"calibration", "acknowledgment"}
-            if signal_types & mastery_types:
-                strong.append((concept, len(entries), max(
-                    (t for t in signal_types if t in mastery_types),
-                    key=lambda t: list(mastery_types).index(t)
-                )))
-            elif signal_types & gap_types:
-                zpd.append((concept, len(entries)))
-            elif signal_types:
-                acknowledged.append(concept)
-
-        # Build brief text
-        lines = ["## Developer Session Brief"]
-
-        if strong:
-            lines.append("\n**Strong areas** (demonstrated understanding):")
-            for concept, n, evidence in strong[:6]:
-                lines.append(f"  - {concept} ({n} entries, strongest: {evidence})")
-        else:
-            lines.append("\n**Strong areas:** None recorded yet.")
+            if types & GAP_TYPES:
+                node = self.graph.get_concept_node(concept)
+                conf = node["confidence"] if node else 0.0
+                zpd.append((concept, len(entries), conf))
 
         if zpd:
             lines.append("\n**ZPD boundaries** (gaps or struggles observed):")
-            for concept, n in zpd[:4]:
-                lines.append(f"  - {concept} ({n} entries with gap/correction signals)")
+            for concept, n, conf in zpd[:4]:
+                lines.append(f"  - {concept} ({n} entries, confidence: {conf:.2f})")
         else:
             lines.append("\n**ZPD boundaries:** None flagged yet.")
 
-        # Engagement summary
+        # --- Engagement ---
         lines.append("\n**Engagement:**")
         cp = engagement.get("consecutive_passive", 0)
         if engagement.get("is_passive_alarm"):
-            lines.append(f"  ⚠ Passive alarm — {cp} consecutive passive responses. "
-                         "Recalibrate before proceeding.")
+            lines.append(
+                f"  ⚠ Passive alarm — {cp} consecutive passive responses. "
+                "Recalibrate before proceeding."
+            )
         elif cp > 0:
             lines.append(f"  {cp} consecutive passive responses — monitor.")
         else:
-            lines.append("  No passive alarm. Engagement signals normal.")
+            lines.append("  No passive alarm.")
 
         recent = engagement.get("recent_signals", [])
         if recent:
             passive_count = sum(1 for s in recent if s.get("passive"))
-            lines.append(f"  Recent: {passive_count}/{len(recent)} passive in last {len(recent)} signals.")
+            lines.append(
+                f"  Recent: {passive_count}/{len(recent)} passive "
+                f"in last {len(recent)} signals."
+            )
 
-        # Calibration notes (Claude's own strategy history for this developer)
+        # --- Calibration history ---
         calibration_notes = []
         for concept in concepts:
-            entries = self.diary.read(concept)
-            for e in entries:
+            for e in self.diary.read(concept):
                 if e.get("evidence_type") == "calibration":
                     calibration_notes.append(e["observation"][:120])
         if calibration_notes:
             lines.append("\n**Strategy history** (your prior calibrations):")
-            for note in calibration_notes[-2:]:  # last 2 only
+            for note in calibration_notes[-2:]:
                 lines.append(f"  - {note}")
 
-        if not strong and not zpd and not calibration_notes:
+        # --- Graph stats ---
+        if self.graph.node_count() > 0:
+            lines.append(
+                f"\n_Graph: {self.graph.node_count()} concepts, "
+                f"{self.graph.edge_count()} associations._"
+            )
+        else:
             lines.append("\n_New developer — no observations yet. Start in senior_peer posture._")
 
         return "\n".join(lines)

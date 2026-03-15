@@ -74,7 +74,17 @@ def record_observation(concept: str, observation: str, evidence_type: str = "ack
     if evidence_type not in valid_types:
         return f"Invalid evidence_type '{evidence_type}'. Valid: {', '.join(sorted(valid_types))}."
 
-    session.diary.record(concept, observation, evidence_type=evidence_type)
+    session.record_observation(concept, observation, evidence_type=evidence_type)
+    return "ok"
+
+
+@mcp.tool()
+def compact(concept: str, summary: str) -> str:
+    """Store a synthesized concept summary written by Claude.
+    Before calling: synthesize the diary entries for this concept in your response.
+    Then call compact() with that synthesis.
+    Only call when concept has 5+ entries — compaction is a considered act, not routine."""
+    session.graph.store_compacted_summary(concept, summary)
     return "ok"
 
 
