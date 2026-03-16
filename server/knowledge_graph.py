@@ -1,13 +1,12 @@
-"""Knowledge Graph — persisted concept model built from diary observations.
+"""Knowledge Graph — concept topology derived from diary observations.
 
-Nodes: concepts with summary, confidence, entry count
+Nodes: concepts with entry count (for ordering)
 Edges: associations derived from [[wiki-links]] in diary entries
 
-Storage: SQLite for persistence across sessions, NetworkX for in-memory ops.
-Confidence grows with evidence quality — mastery signals count more.
+Storage: SQLite for persistence, NetworkX for in-memory traversal.
 
-This is Phase 3 of the v1 architecture. The graph enriches the session brief
-with summaries and relationships rather than raw entry counts.
+Summaries live in ~/.vygotsky/summaries/ as plain markdown files —
+not here. This module is topology only.
 """
 
 import sqlite3
@@ -36,10 +35,7 @@ class KnowledgeGraph:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS nodes (
                     concept     TEXT PRIMARY KEY,
-                    summary     TEXT    DEFAULT '',
-                    confidence  REAL    DEFAULT 0.0,
                     entry_count INTEGER DEFAULT 0,
-                    compacted   INTEGER DEFAULT 0,
                     updated_at  TEXT
                 )
             """)
@@ -57,17 +53,9 @@ class KnowledgeGraph:
     def _load(self):
         """Load persisted graph into NetworkX on startup."""
         with sqlite3.connect(self.db_path) as conn:
-            for row in conn.execute(
-                "SELECT concept, summary, confidence, entry_count, compacted FROM nodes"
-            ):
-                concept, summary, confidence, entry_count, compacted = row
-                self.graph.add_node(
-                    concept,
-                    summary=summary,
-                    confidence=confidence,
-                    entry_count=entry_count,
-                    compacted=bool(compacted),
-                )
+            for row in conn.execute("SELECT concept, entry_count FROM nodes"):
+                concept, entry_count = row
+                self.graph.add_node(concept, entry_count=entry_count)
             for row in conn.execute(
                 "SELECT source, target, edge_type, mentions FROM edges"
             ):
@@ -81,35 +69,11 @@ class KnowledgeGraph:
         by Session.record_observation — not called directly."""
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        # Confidence: grows with evidence, higher for mastery signals
-        current_conf = (
-            self.graph.nodes[concept].get("confidence", 0.0)
-            if concept in self.graph else 0.0
-        )
-        boost = 0.1 if evidence_type in MASTERY_TYPES else 0.03
-        confidence = min(1.0, current_conf + boost)
-
         entry_count = (
             self.graph.nodes[concept].get("entry_count", 0) + 1
             if concept in self.graph else 1
         )
-
-        existing_summary = (
-            self.graph.nodes[concept].get("summary", "")
-            if concept in self.graph else ""
-        )
-        existing_compacted = (
-            self.graph.nodes[concept].get("compacted", False)
-            if concept in self.graph else False
-        )
-
-        self.graph.add_node(
-            concept,
-            summary=existing_summary,
-            confidence=confidence,
-            entry_count=entry_count,
-            compacted=existing_compacted,
-        )
+        self.graph.add_node(concept, entry_count=entry_count)
 
         for linked in linked_concepts:
             if self.graph.has_edge(concept, linked):
@@ -117,18 +81,16 @@ class KnowledgeGraph:
             else:
                 self.graph.add_edge(concept, linked, edge_type="associated", mentions=1)
 
-        # Persist
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """
-                INSERT INTO nodes (concept, confidence, entry_count, updated_at)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO nodes (concept, entry_count, updated_at)
+                VALUES (?, ?, ?)
                 ON CONFLICT(concept) DO UPDATE SET
-                    confidence  = excluded.confidence,
                     entry_count = excluded.entry_count,
                     updated_at  = excluded.updated_at
                 """,
-                (concept, confidence, entry_count, now),
+                (concept, entry_count, now),
             )
             for linked in linked_concepts:
                 existing = conn.execute(
@@ -147,52 +109,10 @@ class KnowledgeGraph:
                     (concept, linked, mentions, now),
                 )
 
-    def store_compacted_summary(self, concept: str, summary: str) -> None:
-        """Store a synthesized summary (written by Claude) for a concept.
-        Called by the compact() MCP tool."""
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-        if concept not in self.graph:
-            self.graph.add_node(concept, confidence=0.5, entry_count=0, compacted=False)
-
-        self.graph.nodes[concept]["summary"] = summary
-        self.graph.nodes[concept]["compacted"] = True
-
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                """
-                INSERT INTO nodes (concept, summary, compacted, updated_at)
-                VALUES (?, ?, 1, ?)
-                ON CONFLICT(concept) DO UPDATE SET
-                    summary    = excluded.summary,
-                    compacted  = 1,
-                    updated_at = excluded.updated_at
-                """,
-                (concept, summary, now),
-            )
-
     def get_concept_node(self, concept: str) -> dict | None:
         if concept not in self.graph:
             return None
         return dict(self.graph.nodes[concept])
-
-    def get_strong_concepts(self, min_confidence: float = 0.3) -> list[dict]:
-        """Concepts with sufficient confidence — sorted by confidence desc."""
-        return sorted(
-            [
-                {
-                    "concept": c,
-                    "confidence": d.get("confidence", 0.0),
-                    "entry_count": d.get("entry_count", 0),
-                    "summary": d.get("summary", ""),
-                    "compacted": d.get("compacted", False),
-                }
-                for c, d in self.graph.nodes(data=True)
-                if d.get("confidence", 0.0) >= min_confidence
-            ],
-            key=lambda x: x["confidence"],
-            reverse=True,
-        )
 
     def get_associated_concepts(self, concept: str) -> list[dict]:
         """Concepts linked from this one, sorted by mention count."""

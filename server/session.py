@@ -45,56 +45,51 @@ class Session:
     def generate_brief(self) -> str:
         """Generate a ~500 token session brief — structured developer model snapshot.
 
-        Uses knowledge graph when available (richer summaries + relationships).
-        Falls back to raw diary entry analysis for new developers.
+        Strong areas and ZPD determined from diary evidence types.
+        Concept summaries (if written by compact()) shown when available.
+        Graph used only for topology (linked concepts).
         """
         concepts = self.diary.list_concepts()
         engagement = self.engagement.get_signals()
 
         lines = ["## Developer Session Brief"]
 
+        # --- Developer-level summary (if compact("developer", ...) was called) ---
+        dev_summary = self.diary.read_summary("developer")
+        if dev_summary:
+            lines.append(f"\n**Developer model:** {dev_summary[:200]}")
+
         # --- Strong areas ---
-        # Prefer graph summaries (compacted) over raw entry counts
-        graph_strong = self.graph.get_strong_concepts(min_confidence=0.3)
-        if graph_strong:
-            lines.append("\n**Strong areas** (from knowledge graph):")
-            for node in graph_strong[:5]:
-                concept = node["concept"]
-                if node["compacted"] and node["summary"]:
-                    # Rich: use compacted summary
-                    lines.append(f"  - **{concept}**: {node['summary'][:100]}")
+        strong = []
+        for concept in concepts:
+            entries = self.diary.read(concept)
+            if not entries:
+                continue
+            types = {e.get("evidence_type", "acknowledgment") for e in entries}
+            signal_types = types - {"calibration", "acknowledgment"}
+            if signal_types & MASTERY_TYPES:
+                strongest = next(
+                    t for t in ["transfer", "directive", "design_decision",
+                                "prediction", "explanation", "disagreement"]
+                    if t in signal_types
+                )
+                strong.append((concept, len(entries), strongest))
+
+        if strong:
+            lines.append("\n**Strong areas** (demonstrated understanding):")
+            for concept, n, evidence in strong[:5]:
+                summary = self.diary.read_summary(concept)
+                if summary:
+                    lines.append(f"  - **{concept}**: {summary[:120]}")
                 else:
-                    lines.append(
-                        f"  - {concept} (confidence: {node['confidence']:.2f}, "
-                        f"{node['entry_count']} entries)"
-                    )
-                # Surface key associations
+                    lines.append(f"  - {concept} ({n} entries, strongest: {evidence})")
+                # Surface key associations from graph topology
                 assoc = self.graph.get_associated_concepts(concept)[:2]
                 if assoc:
                     links = ", ".join(a["concept"] for a in assoc)
                     lines.append(f"    ↳ linked to: {links}")
         else:
-            # Fall back: scan diary directly
-            strong = []
-            for concept in concepts:
-                entries = self.diary.read(concept)
-                if not entries:
-                    continue
-                types = {e.get("evidence_type", "acknowledgment") for e in entries}
-                signal_types = types - {"calibration", "acknowledgment"}
-                if signal_types & MASTERY_TYPES:
-                    strongest = next(
-                        t for t in ["transfer", "directive", "design_decision",
-                                    "prediction", "explanation", "disagreement"]
-                        if t in signal_types
-                    )
-                    strong.append((concept, len(entries), strongest))
-            if strong:
-                lines.append("\n**Strong areas** (demonstrated understanding):")
-                for concept, n, evidence in strong[:5]:
-                    lines.append(f"  - {concept} ({n} entries, strongest: {evidence})")
-            else:
-                lines.append("\n**Strong areas:** None recorded yet.")
+            lines.append("\n**Strong areas:** None recorded yet.")
 
         # --- ZPD boundaries ---
         zpd = []
@@ -104,14 +99,12 @@ class Session:
                 continue
             types = {e.get("evidence_type", "acknowledgment") for e in entries}
             if types & GAP_TYPES:
-                node = self.graph.get_concept_node(concept)
-                conf = node["confidence"] if node else 0.0
-                zpd.append((concept, len(entries), conf))
+                zpd.append((concept, len(entries)))
 
         if zpd:
             lines.append("\n**ZPD boundaries** (gaps or struggles observed):")
-            for concept, n, conf in zpd[:4]:
-                lines.append(f"  - {concept} ({n} entries, confidence: {conf:.2f})")
+            for concept, n in zpd[:4]:
+                lines.append(f"  - {concept} ({n} entries)")
         else:
             lines.append("\n**ZPD boundaries:** None flagged yet.")
 
@@ -147,14 +140,10 @@ class Session:
             for note in calibration_notes[-2:]:
                 lines.append(f"  - {note}")
 
-        # --- Graph stats ---
-        if self.graph.node_count() > 0:
-            lines.append(
-                f"\n_Graph: {self.graph.node_count()} concepts, "
-                f"{self.graph.edge_count()} associations._"
-            )
-        else:
+        if not concepts:
             lines.append("\n_New developer — no observations yet. Start in senior_peer posture._")
+        elif self.graph.edge_count() > 0:
+            lines.append(f"\n_{self.graph.edge_count()} concept associations tracked._")
 
         return "\n".join(lines)
 

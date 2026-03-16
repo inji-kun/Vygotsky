@@ -80,11 +80,12 @@ def record_observation(concept: str, observation: str, evidence_type: str = "ack
 
 @mcp.tool()
 def compact(concept: str, summary: str) -> str:
-    """Store a synthesized concept summary written by Claude.
-    Before calling: synthesize the diary entries for this concept in your response.
-    Then call compact() with that synthesis.
-    Only call when concept has 5+ entries — compaction is a considered act, not routine."""
-    session.graph.store_compacted_summary(concept, summary)
+    """Write a summary file for a concept (or the whole developer model).
+    Before calling: synthesize the diary entries in your response first.
+    Then call compact() with that synthesis — it writes to ~/.vygotsky/summaries/.
+    Use concept='developer' for a whole-developer narrative.
+    Only call when concept has 5+ entries — this is a considered act, not routine."""
+    session.diary.write_summary(concept, summary)
     return "ok"
 
 
