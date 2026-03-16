@@ -58,17 +58,33 @@ if log_path.exists():
         except Exception:
             break
 
-# Output alarm context if threshold exceeded
-if consecutive >= 3:
-    result = {
-        'additionalContext': (
-            '<system-reminder>'
-            f'ENGAGEMENT ALERT: {consecutive} consecutive passive responses. '
-            'The user may be rubber-stamping. Before proceeding with any '
-            'mutating operation, re-engage: surface a trade-off, ask about '
-            'their mental model, or explain why the next step matters.'
-            '</system-reminder>'
+context_parts = []
+
+# Burst nudge from previous turn (written by stop-hook.sh)
+nudge_path = Path.home() / '.vygotsky' / 'pending_nudge'
+if nudge_path.exists():
+    try:
+        burst_count = nudge_path.read_text().strip()
+        nudge_path.unlink()
+        context_parts.append(
+            f'Burst complete: {burst_count} write operation(s) last turn, '
+            'previous response was passive. Before starting the next burst, '
+            'consider whether a theory check is warranted — your quadrant read '
+            'and the diary should guide whether to ask or proceed.'
         )
-    }
-    print(json.dumps(result))
+    except Exception:
+        pass
+
+# Passive alarm
+if consecutive >= 3:
+    context_parts.append(
+        f'ENGAGEMENT ALERT: {consecutive} consecutive passive responses. '
+        'The user may be rubber-stamping. Before proceeding with any '
+        'mutating operation, re-engage: surface a trade-off, ask about '
+        'their mental model, or explain why the next step matters.'
+    )
+
+if context_parts:
+    combined = '<system-reminder>' + ' | '.join(context_parts) + '</system-reminder>'
+    print(json.dumps({'additionalContext': combined}))
 " || exit 1
