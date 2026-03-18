@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "vygotsky",
-      "source": ".",
+      "source": "./",
       "description": "Theory-building coding partner — ensures you understand the code being written",
       "version": "0.2.0"
     }
