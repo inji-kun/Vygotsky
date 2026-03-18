@@ -30,8 +30,11 @@ class Session:
         self.graph = KnowledgeGraph(self.state_dir / "knowledge_graph.db")
 
     def record_observation(self, concept: str, observation: str, evidence_type: str = "acknowledgment") -> None:
-        """Record a diary entry and update the knowledge graph atomically."""
+        """Record a diary entry and update the knowledge graph atomically.
+        Calibration entries are Claude's private strategy — skip graph update."""
         self.diary.record(concept, observation, evidence_type=evidence_type)
+        if evidence_type == "calibration":
+            return
         slug = slugify(concept)
         linked = list(set(slugify(c) for c in LINK_PATTERN.findall(observation)))
         self.graph.update_from_entry(slug, evidence_type, linked)
@@ -175,7 +178,7 @@ class Session:
 
     def _get_linked_with_evidence(self, concept: str) -> list[dict]:
         """Get linked concepts with their evidence summaries."""
-        links = self.diary.get_links(concept)
+        links = [slugify(l) for l in self.diary.get_links(concept)]
         result = []
         for link_name in links:
             link_entries = self.diary.read(link_name)

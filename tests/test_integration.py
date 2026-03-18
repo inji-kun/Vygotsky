@@ -57,7 +57,7 @@ def test_diary_persists_across_sessions(tmp_path):
     session1.diary.record("async_programming",
         "First encounter. Asked good questions about the event loop "
         "but got confused about error propagation in promise chains.",
-        evidence_type="question")
+        evidence_type="connection")
 
     # New session, same directory
     session2 = Session(state_dir=tmp_path)
