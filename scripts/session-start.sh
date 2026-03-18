@@ -12,13 +12,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# --- Clear turn-level state from prior session ---
-echo 0 > "$HOME/.vygotsky/burst_counter" 2>/dev/null
-rm -f "$HOME/.vygotsky/pending_nudge" 2>/dev/null
+# --- Ensure state directory exists (first run on clean machine) ---
+mkdir -p "$HOME/.vygotsky/sessions"
 
-# --- Write session marker ---
-SESSIONS_DIR="$HOME/.vygotsky/sessions"
-mkdir -p "$SESSIONS_DIR"
+# --- Clear turn-level state from prior session ---
+echo 0 > "$HOME/.vygotsky/burst_counter"
+rm -f "$HOME/.vygotsky/pending_nudge"
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
