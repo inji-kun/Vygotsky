@@ -221,7 +221,7 @@ Vygotsky's central insight was that the Zone of Proximal Development is narrow, 
 
 The modes are not rewards or punishments. Extension is where scaffolding has done its job and withdraws — this is the Vygotskian fade, not a gold star. Brake Pedal is not a penalty for being disengaged; it's the recognition that when someone has stopped processing (typing "ok", "sure", "go ahead"), pushing harder makes it worse. You shrink the scope until re-engagement becomes possible.
 
-Transitions happen within a session and in both directions. You might start in Senior Peer, demonstrate solid understanding, shift to Extension — then hit an unfamiliar subsystem and move back to Senior Peer. Claude announces transitions explicitly ("This touches patterns I haven't seen you work with before — I'll walk through the design with you") so you always know why the interaction feels different.
+Transitions happen within a session and in both directions. You might start in Senior Peer, demonstrate solid understanding, shift to Extension — then hit an unfamiliar subsystem and move back to Senior Peer. Claude never announces transitions — the shift is felt in the pace and depth of interaction, not declared. The quadrant is Claude's internal judgment, continuously updated from the live conversation.
 
 ### 10 Workflow Skills
 
@@ -249,13 +249,15 @@ Transitions happen within a session and in both directions. You might start in S
 │  Tone, theory-building discipline,              │
 │  anti-sycophancy engineering.                   │
 ├─────────────────────────────────────────────────┤
-│  Hooks — Safety floor                           │
-│  SessionStart: injects context + session marker │
+│  Hooks — Safety floor + engagement tracking     │
+│  SessionStart: injects SKILL + session brief    │
 │  PreToolUse: theory-check on destructive ops    │
+│  PostToolUse: burst counter on write ops        │
+│  Stop: queues theory-check nudge if passive     │
 │  UserPromptSubmit: passive engagement detection │
 ├─────────────────────────────────────────────────┤
-│  MCP Server — State management                  │
-│  Learner diary · Plan tree · Quadrant state     │
+│  MCP Server — Developer model store (4 tools)   │
+│  Learner diary · Knowledge graph · Summaries    │
 │  Engagement signals (narrative, not numeric)    │
 └─────────────────────────────────────────────────┘
 ```

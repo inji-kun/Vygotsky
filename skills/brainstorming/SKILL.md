@@ -64,7 +64,8 @@ a week of work.
 
 After genuine engagement:
 - Call `record_observation` to diary what the human demonstrated understanding of
-- Invoke the **writing-plans** skill to translate the design into executable steps
+- Invoke the **writing-plans** skill to translate the design into a recursive
+  file-based plan tree — decomposing as deep as the problem requires
 
 ## Anti-Rationalization
 

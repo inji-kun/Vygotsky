@@ -8,6 +8,10 @@ Storage: ~/.vygotsky/diary/
   async-programming.md
   database-migrations.md
   error-handling.md
+
+Summaries (written by compact() tool): ~/.vygotsky/summaries/
+  async-programming.md   ← Claude's synthesis of that concept's diary
+  developer.md           ← whole-developer narrative (concept="developer")
 """
 
 import re
@@ -18,13 +22,18 @@ from pathlib import Path
 DEFAULT_DIARY_DIR = Path.home() / ".vygotsky" / "diary"
 LINK_PATTERN = re.compile(r"\[\[([^\]]+)\]\]")
 
+
+def slugify(concept: str) -> str:
+    """Normalize concept name to a safe hyphenated slug."""
+    return re.sub(r"[^a-z0-9]+", "-", concept.lower()).strip("-")
+
 # Matches: ### 2026-03-10T14:32:00Z [explanation]
 ENTRY_PATTERN = re.compile(r"### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\]\n")
 
 VALID_EVIDENCE_TYPES = {
-    "prediction", "explanation", "question", "application", "transfer",
+    "prediction", "explanation", "connection", "extension", "transfer",
     "correction", "disagreement", "directive", "design_decision",
-    "gap", "acknowledgment",
+    "gap", "acknowledgment", "calibration",
 }
 
 
@@ -42,11 +51,12 @@ class LearnerDiary:
     def __init__(self, diary_dir: Path | None = None):
         self.diary_dir = diary_dir or DEFAULT_DIARY_DIR
         self.diary_dir.mkdir(parents=True, exist_ok=True)
+        self.summaries_dir = self.diary_dir.parent / "summaries"
+        self.summaries_dir.mkdir(parents=True, exist_ok=True)
 
     def _concept_path(self, concept: str) -> Path:
         """Normalize concept name to a safe filename using hyphen slugification."""
-        safe_name = re.sub(r"[^a-z0-9]+", "-", concept.lower()).strip("-")
-        return self.diary_dir / f"{safe_name}.md"
+        return self.diary_dir / f"{slugify(concept)}.md"
 
     def record(self, concept: str, observation: str, evidence_type: str = "acknowledgment") -> None:
         """Append a timestamped observation to a concept's diary file."""
@@ -87,8 +97,14 @@ class LearnerDiary:
         return entries
 
     def list_concepts(self) -> list[str]:
-        """List all concepts that have diary entries."""
-        return [p.stem for p in self.diary_dir.glob("*.md")]
+        """List all concepts that have diary entries, most recently updated first."""
+        return [
+            p.stem for p in sorted(
+                self.diary_dir.glob("*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        ]
 
     def get_links(self, concept: str) -> list[str]:
         """Get concepts linked from this concept's diary via [[concept_name]]."""
@@ -106,6 +122,21 @@ class LearnerDiary:
         counts = Counter(e.get("evidence_type", "acknowledgment") for e in entries)
         parts = [f"{count} {etype}{'s' if count > 1 else ''}" for etype, count in counts.most_common()]
         return f"{len(entries)} entries — {', '.join(parts)}"
+
+    def _summary_path(self, concept: str) -> Path:
+        safe_name = re.sub(r"[^a-z0-9]+", "-", concept.lower()).strip("-")
+        return self.summaries_dir / f"{safe_name}.md"
+
+    def write_summary(self, concept: str, summary: str) -> None:
+        """Write (or overwrite) a summary file for a concept.
+        Use concept='developer' for a whole-developer narrative."""
+        from server.util import atomic_write
+        atomic_write(self._summary_path(concept), summary)
+
+    def read_summary(self, concept: str) -> str | None:
+        """Read the summary file for a concept, or None if not written yet."""
+        path = self._summary_path(concept)
+        return path.read_text().strip() if path.exists() else None
 
     def get_context(self, max_concepts: int = 10) -> str:
         """Return a narrative summary of the learner for Claude to read.
