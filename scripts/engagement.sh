@@ -61,17 +61,20 @@ if log_path.exists():
 context_parts = []
 
 # Burst nudge from previous turn (written by stop-hook.sh)
+# Only inject if this prompt is ALSO passive — a substantive follow-up
+# means the human is engaged and needs no nudge.
 nudge_path = Path.home() / '.vygotsky' / 'pending_nudge'
 if nudge_path.exists():
     try:
         burst_count = nudge_path.read_text().strip()
         nudge_path.unlink()
-        context_parts.append(
-            f'Burst complete: {burst_count} write operation(s) last turn, '
-            'previous response was passive. Before starting the next burst, '
-            'consider whether a theory check is warranted — your quadrant read '
-            'and the diary should guide whether to ask or proceed.'
-        )
+        if passive:
+            context_parts.append(
+                f'Burst complete: {burst_count} write operation(s) last turn, '
+                'previous response was passive. Before starting the next burst, '
+                'consider whether a theory check is warranted — your quadrant read '
+                'and the diary should guide whether to ask or proceed.'
+            )
     except Exception:
         pass
 

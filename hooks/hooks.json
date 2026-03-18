@@ -30,7 +30,7 @@
           {
             "type": "command",
             "command": "'${CLAUDE_PLUGIN_ROOT}/scripts/burst-counter.sh'",
-            "async": true
+            "async": false
           }
         ]
       }

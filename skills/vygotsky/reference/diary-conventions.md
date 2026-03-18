@@ -25,8 +25,8 @@ demonstrates understanding, struggles with something, or engages meaningfully.
 |------|--------|------|
 | `prediction` | Learning | Human predicted behaviour before seeing it |
 | `explanation` | Learning | Human explained concept in own words |
-| `question` | Learning | Probing question revealing depth |
-| `application` | Learning | Applied concept to new context in codebase |
+| `connection` | Learning | Linked concepts together or asked a probing question |
+| `extension` | Learning | Applied concept to new context or extended it |
 | `transfer` | Learning | Connected to external knowledge or different domain |
 | `correction` | Learning | Revised own wrong model after seeing evidence |
 | `disagreement` | Mastery | Pushed back on Claude's approach with reasoning |

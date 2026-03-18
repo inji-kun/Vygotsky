@@ -26,7 +26,7 @@ LINK_PATTERN = re.compile(r"\[\[([^\]]+)\]\]")
 ENTRY_PATTERN = re.compile(r"### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\]\n")
 
 VALID_EVIDENCE_TYPES = {
-    "prediction", "explanation", "question", "application", "transfer",
+    "prediction", "explanation", "connection", "extension", "transfer",
     "correction", "disagreement", "directive", "design_decision",
     "gap", "acknowledgment", "calibration",
 }
@@ -93,8 +93,14 @@ class LearnerDiary:
         return entries
 
     def list_concepts(self) -> list[str]:
-        """List all concepts that have diary entries."""
-        return [p.stem for p in self.diary_dir.glob("*.md")]
+        """List all concepts that have diary entries, most recently updated first."""
+        return [
+            p.stem for p in sorted(
+                self.diary_dir.glob("*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+        ]
 
     def get_links(self, concept: str) -> list[str]:
         """Get concepts linked from this concept's diary via [[concept_name]]."""

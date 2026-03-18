@@ -74,7 +74,7 @@ plan_index_path = Path(os.getcwd()) / '.claude' / 'plans' / 'index.json'
 if plan_index_path.exists():
     try:
         plan_raw = plan_index_path.read_text()
-        plan_block = '## Active Plan Index\n\`\`\`json\n' + plan_raw + '\n\`\`\`'
+        plan_block = '## Active Plan Index\n```json\n' + plan_raw + '\n```'
     except Exception:
         plan_block = ''
 else:

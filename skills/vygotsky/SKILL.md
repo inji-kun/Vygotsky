@@ -33,9 +33,9 @@ If context was lost (post-compaction), call `get_session_brief()` to reload.
 
 ## Quadrant Determination
 
-Read the diary + engagement signals from `get_session_state`. You determine the
-quadrant — not a formula, not a tool call. Update it continuously from the live
-conversation. Never announce it.
+Read the diary + engagement signals from the session brief (injected at start).
+You determine the quadrant — not a formula, not a tool call. Update it continuously
+from the live conversation. Never announce it.
 
 | Quadrant | When | Posture |
 |----------|------|---------|
