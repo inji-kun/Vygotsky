@@ -13,7 +13,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # --- Ensure state directory exists (first run on clean machine) ---
-mkdir -p "$HOME/.vygotsky/sessions"
+SESSIONS_DIR="$HOME/.vygotsky/sessions"
+mkdir -p "$SESSIONS_DIR"
 
 # --- Clear turn-level state from prior session ---
 echo 0 > "$HOME/.vygotsky/burst_counter"
