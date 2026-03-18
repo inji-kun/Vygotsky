@@ -18,20 +18,22 @@
 
 ## Install
 
-```bash
-claude plugin marketplace add inji-kun/vygotsky
-claude plugin install vygotsky@vygotsky
+From inside Claude Code:
+
+```
+/plugin marketplace add inji-kun/vygotsky
+/plugin install vygotsky@vygotsky
 ```
 
 If you have superpowers enabled, disable it first — Vygotsky subsumes its capabilities:
 
-```bash
-claude plugin disable superpowers
+```
+/plugin disable superpowers
 ```
 
 From a local checkout: `claude --plugin-dir ./vygotsky`
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support, Python 3.10+.
+**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support, Python 3.10+, `networkx` (`pip install networkx`).
 
 ---
 

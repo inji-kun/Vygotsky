@@ -6,12 +6,9 @@
   "plugins": [
     {
       "name": "vygotsky",
-      "source": {
-        "source": "github",
-        "repo": "inji-kun/vygotsky"
-      },
+      "source": ".",
       "description": "Theory-building coding partner — ensures you understand the code being written",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }
