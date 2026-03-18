@@ -22,6 +22,11 @@ from pathlib import Path
 DEFAULT_DIARY_DIR = Path.home() / ".vygotsky" / "diary"
 LINK_PATTERN = re.compile(r"\[\[([^\]]+)\]\]")
 
+
+def slugify(concept: str) -> str:
+    """Normalize concept name to a safe hyphenated slug."""
+    return re.sub(r"[^a-z0-9]+", "-", concept.lower()).strip("-")
+
 # Matches: ### 2026-03-10T14:32:00Z [explanation]
 ENTRY_PATTERN = re.compile(r"### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\]\n")
 
@@ -51,8 +56,7 @@ class LearnerDiary:
 
     def _concept_path(self, concept: str) -> Path:
         """Normalize concept name to a safe filename using hyphen slugification."""
-        safe_name = re.sub(r"[^a-z0-9]+", "-", concept.lower()).strip("-")
-        return self.diary_dir / f"{safe_name}.md"
+        return self.diary_dir / f"{slugify(concept)}.md"
 
     def record(self, concept: str, observation: str, evidence_type: str = "acknowledgment") -> None:
         """Append a timestamped observation to a concept's diary file."""

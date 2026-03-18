@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from server.learner_diary import LearnerDiary, LINK_PATTERN
+from server.learner_diary import LearnerDiary, LINK_PATTERN, slugify
 from server.engagement import EngagementTracker
 from server.knowledge_graph import KnowledgeGraph, MASTERY_TYPES, GAP_TYPES
 
@@ -32,8 +32,9 @@ class Session:
     def record_observation(self, concept: str, observation: str, evidence_type: str = "acknowledgment") -> None:
         """Record a diary entry and update the knowledge graph atomically."""
         self.diary.record(concept, observation, evidence_type=evidence_type)
-        linked = LINK_PATTERN.findall(observation)
-        self.graph.update_from_entry(concept, evidence_type, linked)
+        slug = slugify(concept)
+        linked = list(set(slugify(c) for c in LINK_PATTERN.findall(observation)))
+        self.graph.update_from_entry(slug, evidence_type, linked)
 
     def get_state(self) -> dict:
         """Get raw orientation data: diary and engagement signals."""
@@ -182,9 +183,9 @@ class Session:
                 types = [e.get("evidence_type", "acknowledgment") for e in link_entries]
                 strength_order = [
                     "transfer", "directive", "design_decision", "disagreement",
-                    "prediction", "explanation", "application",
-                    "correction", "connection", "extension",
-                    "question", "gap", "acknowledgment", "calibration",
+                    "prediction", "explanation", "extension",
+                    "correction", "connection",
+                    "gap", "acknowledgment", "calibration",
                 ]
                 strongest = "acknowledgment"
                 for t in strength_order:
