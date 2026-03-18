@@ -12,6 +12,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# --- Clear turn-level state from prior session ---
+echo 0 > "$HOME/.vygotsky/burst_counter" 2>/dev/null
+rm -f "$HOME/.vygotsky/pending_nudge" 2>/dev/null
+
 # --- Write session marker ---
 SESSIONS_DIR="$HOME/.vygotsky/sessions"
 mkdir -p "$SESSIONS_DIR"
