@@ -21,6 +21,16 @@
             "command": "'${CLAUDE_PLUGIN_ROOT}/scripts/hardgate.sh'"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/scripts/burst-check.sh'",
+            "async": false
+          }
+        ]
       }
     ],
     "PostToolUse": [

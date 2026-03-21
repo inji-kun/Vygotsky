@@ -33,7 +33,22 @@ If you have superpowers enabled, disable it first — Vygotsky subsumes its capa
 
 From a local checkout: `claude --plugin-dir ./vygotsky`
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support, Python 3.10+, `networkx` (`pip install networkx`).
+**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support. No additional dependencies — Node.js is already present.
+
+### Recommended permissions
+
+Add these to your Claude Code settings so diary writes don't require manual approval:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Write(~/.vygotsky/**)",
+      "Read(~/.vygotsky/**)"
+    ]
+  }
+}
+```
 
 ---
 
@@ -251,16 +266,19 @@ Transitions happen within a session and in both directions. You might start in S
 │  Tone, theory-building discipline,              │
 │  anti-sycophancy engineering.                   │
 ├─────────────────────────────────────────────────┤
-│  Hooks — Safety floor + engagement tracking     │
+│  Hooks — Safety floor + engagement + pacing     │
 │  SessionStart: injects SKILL + session brief    │
 │  PreToolUse: theory-check on destructive ops    │
+│  PreToolUse: burst pacing (mid-turn check)      │
 │  PostToolUse: burst counter on write ops        │
 │  Stop: queues theory-check nudge if passive     │
 │  UserPromptSubmit: passive engagement detection │
 ├─────────────────────────────────────────────────┤
-│  MCP Server — Developer model store (4 tools)   │
-│  Learner diary · Knowledge graph · Summaries    │
-│  Engagement signals (narrative, not numeric)    │
+│  File-based state — ~/.vygotsky/                │
+│  diary/ — narrative observations per concept    │
+│  summaries/ — synthesized concept summaries     │
+│  engagement.json — prompt signal log            │
+│  No MCP server. No external dependencies.       │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -310,8 +328,8 @@ Vygotsky tries to.
 ## Development
 
 ```bash
-claude --plugin-dir .   # run locally
-conda run -n Vygotsky python3 -m pytest tests/ -v   # run tests
+claude --plugin-dir .       # run locally
+bash tests/test_hooks.sh    # run tests
 ```
 
 ## License

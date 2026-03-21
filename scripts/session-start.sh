@@ -2,10 +2,11 @@
 # SessionStart hook for Vygotsky plugin.
 # Injects three blocks at session start (once — nothing mid-session):
 #   1. SKILL.md  — Claude's operating posture
-#   2. Session brief — developer model snapshot (generated from diary)
+#   2. Session brief — developer model snapshot (generated from diary files)
 #   3. Active plan  — .claude/plans/index.json if present in project dir
 #
 # On compaction: injects a lightweight state-reload instruction instead.
+# Uses Node.js (guaranteed by Claude Code) — no Python dependency.
 
 set -euo pipefail
 
@@ -15,87 +16,245 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # --- Ensure state directory exists (first run on clean machine) ---
 SESSIONS_DIR="$HOME/.vygotsky/sessions"
 mkdir -p "$SESSIONS_DIR"
+mkdir -p "$HOME/.vygotsky/diary"
+mkdir -p "$HOME/.vygotsky/summaries"
 
 # --- Clear turn-level state from prior session ---
 echo 0 > "$HOME/.vygotsky/burst_counter"
 rm -f "$HOME/.vygotsky/pending_nudge"
 
 INPUT=$(cat)
-SESSION_ID=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('session_id','unknown'))" 2>/dev/null || echo "unknown")
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-CWD=$(pwd)
-
-cat > "$SESSIONS_DIR/${TIMESTAMP//:/-}_${SESSION_ID}.json" <<MARKER
-{
-  "session_id": "$SESSION_ID",
-  "started_at": "$TIMESTAMP",
-  "cwd": "$CWD",
-  "plugin_version": "0.2.0",
-  "vygotsky_active": true
-}
-MARKER
-
-# --- Detect event type ---
-EVENT_TYPE=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('type','startup'))" 2>/dev/null || echo "startup")
-
 SKILL_PATH="${PLUGIN_ROOT}/skills/vygotsky/SKILL.md"
 
-if [ ! -f "$SKILL_PATH" ]; then
-    echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Error: Vygotsky SKILL.md not found"}}' >&2
-    exit 1
-fi
+# --- Use node for all JSON/file processing ---
+node -e "
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
-if [ "$EVENT_TYPE" = "compact" ]; then
-    # Post-compaction: lightweight reload instruction only
-    python3 -c "
-import json, sys
-msg = ('Vygotsky session resumed after compaction. '
-       'Call get_session_brief() immediately to re-orient on the developer model. '
-       'Then check .claude/plans/index.json if a plan is active.')
-wrapper = '<EXTREMELY_IMPORTANT>\n' + msg + '\n</EXTREMELY_IMPORTANT>'
-print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': wrapper}}))
-"
-else
-    # Normal start: generate brief + read plan index, inject all three blocks
-    python3 -c "
-import json, sys, os
-from pathlib import Path
+const input = JSON.parse(process.argv[1]);
+const skillPath = process.argv[2];
+const pluginRoot = process.argv[3];
+const cwd = process.cwd();
 
-# Block 1: SKILL.md
-skill_path = sys.argv[1]
-skill = Path(skill_path).read_text()
+const VYGOTSKY_DIR = path.join(os.homedir(), '.vygotsky');
+const DIARY_DIR = path.join(VYGOTSKY_DIR, 'diary');
+const SUMMARIES_DIR = path.join(VYGOTSKY_DIR, 'summaries');
+const ENGAGEMENT_PATH = path.join(VYGOTSKY_DIR, 'engagement.json');
+const SESSIONS_DIR = path.join(VYGOTSKY_DIR, 'sessions');
 
-# Block 2: Session brief (generated from diary)
-try:
-    sys.path.insert(0, sys.argv[2])  # plugin root on path
-    from server.session import Session
-    brief = Session().generate_brief()
-except Exception as e:
-    brief = f'(Session brief unavailable: {e})'
+const MASTERY_TYPES = new Set(['prediction', 'explanation', 'transfer', 'directive', 'design_decision', 'disagreement']);
+const GAP_TYPES = new Set(['gap', 'correction']);
+const LINK_RE = /\[\[([^\]]+)\]\]/g;
+const ENTRY_RE = /### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\]\n/;
 
-# Block 3: Active plan index (project-local, optional)
-plan_index_path = Path(os.getcwd()) / '.claude' / 'plans' / 'index.json'
-if plan_index_path.exists():
-    try:
-        plan_raw = plan_index_path.read_text()
-        plan_block = '## Active Plan Index\n```json\n' + plan_raw + '\n```'
-    except Exception:
-        plan_block = ''
-else:
-    plan_block = ''
+// --- Write session marker ---
+const sessionId = input.session_id || 'unknown';
+const timestamp = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+const marker = JSON.stringify({
+  session_id: sessionId,
+  started_at: timestamp,
+  cwd: cwd,
+  plugin_version: '0.3.0',
+  vygotsky_active: true
+}, null, 2);
+const safeTs = timestamp.replace(/:/g, '-');
+fs.writeFileSync(path.join(SESSIONS_DIR, safeTs + '_' + sessionId + '.json'), marker);
 
-# Assemble context
-parts = ['You are Vygotsky — a theory-building coding partner.\n', skill]
-parts.append('\n---\n')
-parts.append(brief)
-if plan_block:
-    parts.append('\n---\n')
-    parts.append(plan_block)
+// --- Detect event type ---
+const eventType = input.type || 'startup';
 
-context = '\n'.join(parts)
-wrapper = '<EXTREMELY_IMPORTANT>\n' + context + '\n</EXTREMELY_IMPORTANT>'
-print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': wrapper}}))
-" "$SKILL_PATH" "$PLUGIN_ROOT"
-fi
+if (eventType === 'compact') {
+  const msg = 'Vygotsky session resumed after compaction. ' +
+    'Read the diary files in ~/.vygotsky/diary/ to re-orient on the developer model. ' +
+    'Then check .claude/plans/index.json if a plan is active.';
+  const wrapper = '<EXTREMELY_IMPORTANT>\\n' + msg + '\\n</EXTREMELY_IMPORTANT>';
+  console.log(JSON.stringify({hookSpecificOutput: {hookEventName: 'SessionStart', additionalContext: wrapper}}));
+  process.exit(0);
+}
+
+// --- Helpers ---
+function slugify(concept) {
+  return concept.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function readSummary(concept) {
+  const p = path.join(SUMMARIES_DIR, slugify(concept) + '.md');
+  try { return fs.readFileSync(p, 'utf8').trim(); } catch { return null; }
+}
+
+function parseEntries(filePath) {
+  let content;
+  try { content = fs.readFileSync(filePath, 'utf8'); } catch { return []; }
+  const parts = content.split(/### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\]\n/);
+  const entries = [];
+  for (let i = 1; i + 2 < parts.length; i += 3) {
+    entries.push({ timestamp: parts[i], evidence_type: parts[i+1], observation: parts[i+2].trim() });
+  }
+  return entries;
+}
+
+function extractLinks(content) {
+  const links = new Set();
+  let m;
+  const re = /\[\[([^\]]+)\]\]/g;
+  while ((m = re.exec(content)) !== null) {
+    links.add(slugify(m[1]));
+  }
+  return links;
+}
+
+// --- Block 1: SKILL.md ---
+const skill = fs.readFileSync(skillPath, 'utf8');
+
+// --- Block 2: Generate session brief ---
+const lines = ['## Developer Session Brief'];
+
+// List concepts sorted by mtime
+let conceptFiles = [];
+try {
+  conceptFiles = fs.readdirSync(DIARY_DIR)
+    .filter(f => f.endsWith('.md'))
+    .map(f => ({ name: f, stem: f.replace('.md', ''), full: path.join(DIARY_DIR, f), mtime: fs.statSync(path.join(DIARY_DIR, f)).mtimeMs }))
+    .sort((a, b) => b.mtime - a.mtime);
+} catch {}
+
+// Developer summary
+const devSummary = readSummary('developer');
+if (devSummary) lines.push('\\n**Developer model:** ' + devSummary.slice(0, 200));
+
+// Strong areas
+const strong = [];
+for (const cf of conceptFiles) {
+  const entries = parseEntries(cf.full);
+  if (!entries.length) continue;
+  const types = new Set(entries.map(e => e.evidence_type));
+  const signalTypes = new Set([...types].filter(t => t !== 'calibration' && t !== 'acknowledgment'));
+  const hasMastery = [...signalTypes].some(t => MASTERY_TYPES.has(t));
+  if (hasMastery) {
+    for (const t of ['transfer', 'directive', 'design_decision', 'prediction', 'explanation', 'disagreement']) {
+      if (signalTypes.has(t)) {
+        strong.push({ concept: cf.stem, count: entries.length, strongest: t, full: cf.full });
+        break;
+      }
+    }
+  }
+}
+
+if (strong.length) {
+  lines.push('\\n**Strong areas** (demonstrated understanding):');
+  for (const s of strong.slice(0, 5)) {
+    const summary = readSummary(s.concept);
+    if (summary) {
+      lines.push('  - **' + s.concept + '**: ' + summary.slice(0, 120));
+    } else {
+      lines.push('  - ' + s.concept + ' (' + s.count + ' entries, strongest: ' + s.strongest + ')');
+    }
+    const content = fs.readFileSync(s.full, 'utf8');
+    const linked = extractLinks(content);
+    linked.delete(s.concept);
+    if (linked.size) {
+      lines.push('    -> linked to: ' + [...linked].slice(0, 3).join(', '));
+    }
+  }
+} else {
+  lines.push('\\n**Strong areas:** None recorded yet.');
+}
+
+// ZPD boundaries
+const zpd = [];
+for (const cf of conceptFiles) {
+  const entries = parseEntries(cf.full);
+  if (!entries.length) continue;
+  const types = new Set(entries.map(e => e.evidence_type));
+  if ([...types].some(t => GAP_TYPES.has(t))) {
+    zpd.push({ concept: cf.stem, count: entries.length });
+  }
+}
+
+if (zpd.length) {
+  lines.push('\\n**ZPD boundaries** (gaps or struggles observed):');
+  for (const z of zpd.slice(0, 4)) {
+    lines.push('  - ' + z.concept + ' (' + z.count + ' entries)');
+  }
+} else {
+  lines.push('\\n**ZPD boundaries:** None flagged yet.');
+}
+
+// Engagement signals
+lines.push('\\n**Engagement:**');
+let consecutivePassive = 0;
+let recentSignals = [];
+try {
+  const raw = fs.readFileSync(ENGAGEMENT_PATH, 'utf8').trim().split('\\n').filter(Boolean);
+  for (const line of raw) {
+    try { recentSignals.push(JSON.parse(line)); } catch {}
+  }
+  for (let i = recentSignals.length - 1; i >= 0; i--) {
+    if (recentSignals[i].passive) consecutivePassive++;
+    else break;
+  }
+} catch {}
+
+if (consecutivePassive >= 3) {
+  lines.push('  Warning: ' + consecutivePassive + ' consecutive passive responses. Recalibrate before proceeding.');
+} else if (consecutivePassive > 0) {
+  lines.push('  ' + consecutivePassive + ' consecutive passive responses — monitor.');
+} else {
+  lines.push('  No passive alarm.');
+}
+
+if (recentSignals.length) {
+  const lastN = recentSignals.slice(-10);
+  const passiveCount = lastN.filter(s => s.passive).length;
+  lines.push('  Recent: ' + passiveCount + '/' + lastN.length + ' passive in last ' + lastN.length + ' signals.');
+}
+
+// Calibration history
+const calibrationNotes = [];
+for (const cf of conceptFiles) {
+  for (const e of parseEntries(cf.full)) {
+    if (e.evidence_type === 'calibration') calibrationNotes.push(e.observation.slice(0, 120));
+  }
+}
+if (calibrationNotes.length) {
+  lines.push('\\n**Strategy history** (your prior calibrations):');
+  for (const note of calibrationNotes.slice(-2)) {
+    lines.push('  - ' + note);
+  }
+}
+
+// Concept topology summary
+let edgeCount = 0;
+for (const cf of conceptFiles) {
+  const content = fs.readFileSync(cf.full, 'utf8');
+  const linked = extractLinks(content);
+  linked.delete(cf.stem);
+  edgeCount += linked.size;
+}
+
+if (!conceptFiles.length) {
+  lines.push('\\n_New developer — no observations yet. Start in senior_peer posture._');
+} else if (edgeCount > 0) {
+  lines.push('\\n_' + edgeCount + ' concept associations tracked across ' + conceptFiles.length + ' concepts._');
+}
+
+const brief = lines.join('\\n');
+
+// --- Block 3: Active plan index ---
+let planBlock = '';
+const planPath = path.join(cwd, '.claude', 'plans', 'index.json');
+try {
+  const planRaw = fs.readFileSync(planPath, 'utf8');
+  planBlock = '## Active Plan Index\\n\`\`\`json\\n' + planRaw + '\\n\`\`\`';
+} catch {}
+
+// --- Assemble ---
+const parts = ['You are Vygotsky — a theory-building coding partner.\\n', skill, '\\n---\\n', brief];
+if (planBlock) { parts.push('\\n---\\n'); parts.push(planBlock); }
+const context = parts.join('\\n');
+const wrapper = '<EXTREMELY_IMPORTANT>\\n' + context + '\\n</EXTREMELY_IMPORTANT>';
+console.log(JSON.stringify({hookSpecificOutput: {hookEventName: 'SessionStart', additionalContext: wrapper}}));
+" "$INPUT" "$SKILL_PATH" "$PLUGIN_ROOT"
 
 exit 0
