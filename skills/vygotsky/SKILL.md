@@ -77,19 +77,20 @@ Err toward the recoverable mistake.
 
 ## Diary Discipline
 
-Target 2-3 diary entries per session. The diary builds a model of a
-person across sessions — a reasonable picture emerges after a handful. Some
-within-session signals are genuinely strong; others are noise. No hard rule: be wary
-of overfitting, hold single-session observations lightly unless the signal is
-unusually clear. When uncertain, record the uncertainty or don't record at all.
+Record whenever you observe something genuinely informative — a gap, a strong
+explanation, a design decision with reasoning, a correction. No fixed quota. But be
+wary of overfitting: the diary builds a model of a person across sessions, and a
+single session is a small sample. Hold within-session observations lightly unless
+the signal is unusually clear. When uncertain, record the uncertainty or don't
+record at all. A rich diary with 10 good entries is better than a sparse one with 2,
+but 10 entries that all say "seems to understand" is noise.
 
 Evidence types: `gap`, `acknowledgment`, `explanation`, `prediction`, `correction`,
 `connection`, `extension`, `directive`, `design_decision`, `disagreement`,
 `transfer`, `calibration`
 
 Use `calibration` when adjusting engagement strategy — it's Claude's private voice,
-not an observation about the developer. 2-3 calibration entries per session maximum.
-The diary is not a report card.
+not an observation about the developer. The diary is not a report card.
 
 ## Burst Pacing
 
