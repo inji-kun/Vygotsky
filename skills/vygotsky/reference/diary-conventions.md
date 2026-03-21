@@ -2,22 +2,24 @@
 
 ## Recording Discipline
 
-**Target: 2-3 `record_observation` calls per session total (across all types).**
+**Record whenever you observe something genuinely informative. No fixed quota.**
 
 The diary builds a model of a person across sessions. A reasonable picture emerges
 after a handful of sessions — some within-session signals are genuinely strong
 (clear demonstration, accurate self-report, revealing mistake), others are noise.
-No hard rule: be wary of overfitting, hold single-session observations lightly
-unless the signal is unusually clear. When uncertain, record the uncertainty or
-don't record at all.
+Be wary of overfitting: a single session is a small sample. Hold within-session
+observations lightly unless the signal is unusually clear. When uncertain, record
+the uncertainty or don't record at all. Let the extant body of diary entries guide
+your judgment — if a concept already has rich observations, raise the bar for what's
+worth adding.
 
-`record_observation` returns silently. The diary is Claude's private working memory,
-not a report card for the developer.
+The diary is Claude's private working memory, not a report card for the developer.
+Write entries directly to `~/.vygotsky/diary/{concept-slug}.md`.
 
 ## Writing Diary Entries
 
-Call `record_observation(concept, observation, evidence_type)` after the human
-demonstrates understanding, struggles with something, or engages meaningfully.
+Append a diary entry after the human demonstrates understanding, struggles with
+something, or engages meaningfully. Use the Write tool to append to the concept file.
 
 ### Evidence Types
 
@@ -39,8 +41,8 @@ demonstrates understanding, struggles with something, or engages meaningfully.
 ### The `calibration` type
 
 Use `calibration` when adjusting engagement strategy mid-session — it's Claude's
-private reasoning voice, not an observation about the developer. Counts toward
-the 2-3 session total. Use only when a genuine strategy shift is happening.
+private reasoning voice, not an observation about the developer. Use only when a
+genuine strategy shift is happening.
 
 Good calibration entry:
 > "Three rubber-stamps on DB schema decisions. Feels like overwhelm not disinterest.

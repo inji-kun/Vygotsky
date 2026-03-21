@@ -16,26 +16,18 @@ if [ "$count" -eq 0 ]; then
     exit 0
 fi
 
-# Check if last human prompt was passive
-last_passive=$(python3 -c "
-import json
-from pathlib import Path
-
-log = Path.home() / '.vygotsky' / 'engagement.json'
-if not log.exists():
-    print('false')
-    exit()
-
-lines = [l for l in log.read_text().strip().split('\n') if l.strip()]
-if not lines:
-    print('false')
-    exit()
-
-try:
-    last = json.loads(lines[-1])
-    print('true' if last.get('passive') else 'false')
-except Exception:
-    print('false')
+# Check if last human prompt was passive (using node instead of python3)
+last_passive=$(node -e "
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const logPath = path.join(os.homedir(), '.vygotsky', 'engagement.json');
+try {
+  const lines = fs.readFileSync(logPath, 'utf8').trim().split('\n').filter(Boolean);
+  if (!lines.length) { console.log('false'); process.exit(); }
+  const last = JSON.parse(lines[lines.length - 1]);
+  console.log(last.passive ? 'true' : 'false');
+} catch { console.log('false'); }
 " 2>/dev/null || echo "false")
 
 if [ "$last_passive" = "true" ]; then
