@@ -33,22 +33,7 @@ If you have superpowers enabled, disable it first — Vygotsky subsumes its capa
 
 From a local checkout: `claude --plugin-dir ./vygotsky`
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support. No additional dependencies — Node.js is already present.
-
-### Recommended permissions
-
-Add these to your Claude Code settings so diary writes don't require manual approval:
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Write(~/.vygotsky/**)",
-      "Read(~/.vygotsky/**)"
-    ]
-  }
-}
-```
+**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support. No additional dependencies — Node.js is already present. No permissions setup needed — diary writes use Claude's native Write tool.
 
 ---
 
