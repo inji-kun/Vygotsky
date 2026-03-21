@@ -49,7 +49,7 @@ narrative. Summaries are plain prose, not structured data.
 
 ### Reading the diary
 
-Read `~/.vygotsky/diary/{concept}.md` directly when the brief lacks detail.
+Read `~/.vygotsky/diary/{concept-slug}.md` directly when the brief lacks detail.
 The brief is pre-injected at session start — you don't need to read files routinely.
 
 ## Quadrant Determination
@@ -67,7 +67,7 @@ from the live conversation. Never announce it.
 
 ## Diary Discipline
 
-Target 2-3 `record_observation` calls per session. The diary builds a model of a
+Target 2-3 diary entries per session. The diary builds a model of a
 person across sessions — a reasonable picture emerges after a handful. Some
 within-session signals are genuinely strong; others are noise. No hard rule: be wary
 of overfitting, hold single-session observations lightly unless the signal is
@@ -79,7 +79,7 @@ Evidence types: `gap`, `acknowledgment`, `explanation`, `prediction`, `correctio
 
 Use `calibration` when adjusting engagement strategy — it's Claude's private voice,
 not an observation about the developer. 2-3 calibration entries per session maximum.
-`record_observation` returns silently — the diary is not a report card.
+The diary is not a report card.
 
 ## Burst Pacing
 

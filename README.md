@@ -328,8 +328,7 @@ Vygotsky tries to.
 ## Development
 
 ```bash
-claude --plugin-dir .       # run locally
-bash tests/test_hooks.sh    # run tests
+claude --plugin-dir .    # run locally
 ```
 
 ## License

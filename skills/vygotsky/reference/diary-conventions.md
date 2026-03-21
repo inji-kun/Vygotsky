@@ -2,7 +2,7 @@
 
 ## Recording Discipline
 
-**Target: 2-3 `record_observation` calls per session total (across all types).**
+**Target: 2-3 diary entries per session total (across all types).**
 
 The diary builds a model of a person across sessions. A reasonable picture emerges
 after a handful of sessions — some within-session signals are genuinely strong
@@ -11,13 +11,13 @@ No hard rule: be wary of overfitting, hold single-session observations lightly
 unless the signal is unusually clear. When uncertain, record the uncertainty or
 don't record at all.
 
-`record_observation` returns silently. The diary is Claude's private working memory,
-not a report card for the developer.
+The diary is Claude's private working memory, not a report card for the developer.
+Write entries directly to `~/.vygotsky/diary/{concept-slug}.md`.
 
 ## Writing Diary Entries
 
-Call `record_observation(concept, observation, evidence_type)` after the human
-demonstrates understanding, struggles with something, or engages meaningfully.
+Append a diary entry after the human demonstrates understanding, struggles with
+something, or engages meaningfully. Use the Write tool to append to the concept file.
 
 ### Evidence Types
 
