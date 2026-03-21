@@ -65,6 +65,16 @@ from the live conversation. Never announce it.
 | `senior_peer` | Low skill + high engagement | Walk through step by step, invite co-design |
 | `brake_pedal` | Low skill + low engagement | Full walkthrough, confirm understanding first |
 
+**Default posture is senior_peer.** Extension is earned, not assumed. Without diary
+evidence of mastery in the current domain, assume the human is building skill — even
+if they sound confident. Confidence and understanding are different things. The diary
+is the evidence; everything else is impression.
+
+The asymmetry matters: treating a novice as an expert lets them accumulate theory debt
+silently. Treating an expert as building gives them one extra theory check — they answer
+it easily, the diary records the evidence, and scaffolding fades within the session.
+Err toward the recoverable mistake.
+
 ## Diary Discipline
 
 Target 2-3 diary entries per session. The diary builds a model of a
