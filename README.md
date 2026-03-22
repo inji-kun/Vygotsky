@@ -49,7 +49,7 @@ Replaces [superpowers](https://github.com/anthropics/claude-plugins-official). I
 **Recommended: vault access** (so Claude can read/search your Obsidian vault):
 
 ```
-claude mcp add smithery-ai/mcp-obsidian -- --vault /path/to/your/vault
+claude mcp add --transport stdio obsidian -- npx -y mcp-obsidian /path/to/your/vault
 ```
 
 **Optional: document editing** (for docx/pptx/xlsx/pdf — requires LibreOffice):
@@ -245,7 +245,7 @@ claude
 For search and structured queries across your vault, add the recommended MCP server:
 
 ```bash
-claude mcp add smithery-ai/mcp-obsidian -- --vault ~/path/to/your/vault
+claude mcp add --transport stdio obsidian -- npx -y mcp-obsidian ~/path/to/your/vault
 ```
 
 This gives Claude tools to search your notes by content, read specific files, and understand the vault's structure. It reads the markdown files directly from disk — Obsidian doesn't need to be running.
