@@ -86,19 +86,7 @@ You can install both. They share a diary (entries tagged by plugin) but track en
 
 > *"I stopped working out because I didn't want to get out of my chair. I sat around in PJ's all day and didn't shower very often. Didn't brush my teeth. This is why I don't play slot machines."*
 
-> *"I can do 1.5 months of work in a day so your brain literally never gets a chance to shut off."*
-
-> *"I ended up fighting a lot with anyone who interrupted me while working. It's usual flow state but 100x due to 100x more context running in background."*
-
 > *"It's very easy to run the wrong direction very quickly with AI, and feel like you're making progress without actually having a material impact on your goal."*
-
-These are experienced developers describing a compulsive relationship with a coding tool that has no natural stopping point.
-
-Meanwhile, on the other side:
-
-> *"Testing AI-generated work became exhausting, like QA testing the work of a bad engineer. After sinking time into it, the result wasn't shippable, and they hadn't benefitted as a human being while working on it — no new skills to show."*
-
-> *"More and more students struggle with basic concepts, almost always a consequence of relying too much on ChatGPT and vibe coding tools. Everything is fragmented and they don't get the feeling of accomplishment after finishing features."*
 
 > *"AI coding tools promised to make us 1000x developers. Instead, many of us are drowning in half-finished projects, endless re-planning, and a strange new anxiety that comes from having TOO MUCH capability."*
 
@@ -106,7 +94,13 @@ Meanwhile, on the other side:
 >
 > — **Andrew Ng**
 
-Two groups of people using the same tools, experiencing two sides of the same problem. One group can't stop. The other gets nothing from it.
+These are developers. But the pattern is not about coding.
+
+A [Harvard Business School study](https://www.hbs.edu/faculty/Pages/item.aspx?num=64700) gave 758 BCG consultants access to GPT-4. On tasks within the AI's capability frontier, they were 25% faster with 40% higher quality. On tasks *outside* the frontier, they performed **19 percentage points worse** than consultants without AI — and couldn't tell the difference. A [study in *Science*](https://www.science.org/doi/10.1126/science.adw3000) analyzing 2.1 million preprints found that AI-polished academic papers were *less* likely to survive peer review — polished language masking substantive weakness. [Stanford HAI](https://hai.stanford.edu/news/ai-trial-legal-models-hallucinate-1-out-6-or-more-benchmarking-queries) found that leading AI legal research tools hallucinate on 17–34% of queries. An [MIT Media Lab study](https://arxiv.org/abs/2506.08872) using EEG found that people who wrote essays with ChatGPT showed the weakest neural connectivity patterns — and the effect carried over even after the AI was removed.
+
+And when economists at the [University of Copenhagen](https://www.nber.org/papers/w33777) studied 25,000 workers across Denmark, they found that despite 47% adoption, AI produced **precisely zero** measurable impact on earnings, wages, or hours — confidence intervals ruling out effects larger than 1%.
+
+The same gap between what the tool makes you *feel* (faster, more capable) and what it actually *produces* in the person using it (dependency, erosion of understanding). Developers experience it most visibly because coding is where AI adoption is deepest. But the mechanism is domain-general.
 
 What's going on?
 
@@ -120,14 +114,14 @@ In the 2000s, this paradigm found its business model: the attention economy. Soc
 
 Now the same paradigm has produced its inversion. You might call it the inattention economy.
 
-The pitch from AI coding tools is: *you don't need to pay attention to the details anymore*. Let the agent handle it. Let it write the code, debug the code, review the code. Your job is to direct, not to understand. The value proposition is your *disengagement* from the substance of your own work — the less you need to understand, the more valuable the tool.
+The pitch from AI tools is: *you don't need to pay attention to the details anymore*. Let the agent handle it. Let it write the code, draft the proposal, synthesize the research, review the contract. Your job is to direct, not to understand. The value proposition is your *disengagement* from the substance of your own work — the less you need to understand, the more valuable the tool.
 
 The people building these tools are talented engineers following the same UX playbook that produced every great product of the last twenty years: remove friction, increase ease, ship faster. The problem is that the playbook's optimization target — frictionless use — is wrong for tools that shape human capability.
 
 The side effects mirror Web 2.0's, inverted:
 
 - **Attention economy**: compulsive *engagement* with content you don't need — anxiety, shortened attention spans, loss of deep focus
-- **Inattention economy**: compulsive *delegation* of work you don't understand — anxiety, loss of competence, growing codebases nobody can maintain
+- **Inattention economy**: compulsive *delegation* of work you don't understand — anxiety, loss of competence, growing artifacts nobody can maintain or defend
 
 Different mechanism, but the same gap between what the tool makes you *feel* (productive, powerful, fast) and what it actually *produces* in the person using it (dependence, erosion of understanding, a degraded relationship to your own work).
 
@@ -147,7 +141,7 @@ RX stands for Razvitie Experience — from развитие (*razvitie*), the Ru
 
 This isn't opposed to UX. Ease of use still matters, and friction for its own sake is just bad design. But RX adds a question that UX doesn't ask: does this interaction leave the person more capable, or more dependent? If your tool is frictionless but the person who uses it for a year understands less than when they started, something has gone wrong — and it's not a side effect. It's the predictable outcome of optimizing for the wrong thing.
 
-Vygotsky is an attempt to implement RX for software development.
+Vygotsky is an attempt to implement RX — starting with software development, and extending to knowledge work broadly.
 
 ---
 
@@ -185,6 +179,14 @@ The difference between these groups was not ability or experience — it was mod
 
 > *"Rather than eliminating time pressure, LLM use shifted it from debugging to understanding, verifying, and documenting AI-generated solutions."*
 
+### Beyond Coding
+
+The coding evidence is the most controlled, but the pattern appears wherever AI meets knowledge work. The BCG study (above) showed the same perception-reality gap among consultants. The *Science* study showed it in academic publishing — more papers, lower acceptance rates. The Copenhagen study showed it economy-wide — massive adoption, zero productivity impact.
+
+A [review in *Springer Nature*](https://link.springer.com/chapter/10.1007/978-3-032-11748-9_5) documented measurable competency decline within months of AI adoption across medical, legal, and professional practice. A [study of 666 participants](https://www.mdpi.com/2075-4698/15/1/6) found a significant negative correlation between AI usage frequency and critical thinking ability, mediated by cognitive offloading — the more you trust the tool, the less you think for yourself.
+
+The mechanism is the same everywhere: the AI produces output that *looks* competent, the human accepts it because checking requires effort the output doesn't reward, and understanding silently erodes. The domain doesn't matter. The interaction design does.
+
 ### Why This Happens: The Cognitive Science
 
 **The 10-bit bottleneck.** Caltech researchers (2024) quantified what designers have intuited for decades: conscious human thought operates at approximately **10 bits per second**. Sensory systems gather a billion bits per second. Any tool that dumps information at compute speed is fighting human neurology. The streaming text that makes an AI agent look impressively fast is, from the perspective of human cognition, a firehose aimed at a teacup.
@@ -193,21 +195,35 @@ The difference between these groups was not ability or experience — it was mod
 
 **The fragility of attention.** Gloria Mark's research at UC Irvine showed that it takes approximately **25 minutes** to refocus after an interruption. People compensate by working faster, which increases stress and cortisol. The mere *possibility* of notification creates anticipatory anxiety, even when no notification comes. Flow states are fragile and valuable. Importantly, **self-interruptions** (choosing to check something) cost less than external interruptions — the nervous system responds differently to voluntary versus involuntary attention shifts. A well-placed theory check, one that the developer experiences as part of the work rather than an interruption to it, doesn't carry a 25-minute refocus cost. It's collaborative thinking, not a context switch.
 
-**What disengagement actually looks like.** The developer who types "ok" and "y" and hopes for the best isn't lazy. They've hit the point where extraneous cognitive load has overwhelmed their capacity to process, and they've switched from trying to understand to trying to get through it. Sweller's framework predicts this: when total load exceeds working memory, germane processing — the kind that builds understanding — is the first thing to go. The developer who can't stop coding at 2 AM isn't unusually disciplined either. Rousseau identified the mechanism: variable ratio reinforcement, the same schedule that makes slot machines compelling. Neither state produces understanding, and both are predictable responses to an interaction design that offers no calibration and no natural stopping points.
+**What disengagement actually looks like.** The person who types "ok" and "looks good" and hopes for the best isn't lazy. They've hit the point where extraneous cognitive load has overwhelmed their capacity to process, and they've switched from trying to understand to trying to get through it. Sweller's framework predicts this: when total load exceeds working memory, germane processing — the kind that builds understanding — is the first thing to go. The person who can't stop prompting at 2 AM isn't unusually disciplined either. Rousseau identified the mechanism: variable ratio reinforcement, the same schedule that makes slot machines compelling. Neither state produces understanding, and both are predictable responses to an interaction design that offers no calibration and no natural stopping points.
 
 ---
 
-## Programming as Theory Building
+## Knowledge Work as Theory Building
 
 Peter Naur ([1985](https://pages.cs.wisc.edu/~remzi/Naur.pdf)) argued that programming is not the production of code but the building of a **theory** — a mental model of the problem domain, the solution architecture, and the relationship between them. Code is an artifact of theory. Without the theory, the code is unmaintainable, even if it works perfectly.
 
-When the Hacker News community rediscovered Naur in July 2025 — after the METR study showed AI makes experienced developers slower — the connection was immediate: AI disrupts theory-building. The developer who accepts AI-generated code without building a theory of it has acquired a liability, not an asset. When the code breaks, the absence of theory means they cannot debug, extend, or reason about it.
+This is not specific to programming. An academic proposal is an artifact of a theory about a field and where it needs to go. A legal brief is an artifact of a theory about how the law applies to the facts. A research synthesis is an artifact of a theory about what the literature says and what it means. In every case, the artifact without the theory is a liability — it cannot be defended, extended, or revised by the person who holds it. And in every case, AI tools are producing the artifact while bypassing the theory construction that gives the artifact its value.
 
-But "struggle" — the traditional mechanism for theory construction — is really just a word for germane cognitive load. And germane load can take forms other than writing code by hand. The Anthropic study showed this: the tight communication loop between human and AI — asking why, probing assumptions, predicting outcomes — *is* the productive struggle. It just doesn't look like what struggle used to look like.
+When the Hacker News community rediscovered Naur in July 2025 — after the METR study showed AI makes experienced developers slower — the connection was immediate: AI disrupts theory-building. But the disruption is not limited to code. The BCG consultant who accepts AI-generated strategy slides without building a theory of the market has acquired a liability. The academic who submits an AI-polished paper without deeply engaging with the argument has acquired a liability. The artifact looks competent. The person holding it is not.
+
+"Struggle" — the traditional mechanism for theory construction — is really just a word for germane cognitive load. And germane load can take forms other than doing the work by hand. The Anthropic study showed this: the tight communication loop between human and AI — asking why, probing assumptions, predicting outcomes — *is* the productive struggle. It just doesn't look like what struggle used to look like.
 
 Lev Vygotsky ([1896–1934](https://en.wikipedia.org/wiki/Lev_Vygotsky)) showed that cognitive development happens in the space between what you can do alone and what you can do with guidance — the *Zone of Proximal Development*. The guidance must be calibrated. And critically, the scaffolding must *fade*: good guidance creates competence, then withdraws. Yesterday's guided discovery becomes today's autonomous skill.
 
-The synthesis: the developer's job is to construct and maintain the theory. The AI's job is twofold — **compile that theory into executable code**, and **scaffold the theory-building itself**. The AI is not just a code generator. It is a collaborator in the thinking — not just producing code, but participating in the conversation that builds your understanding of it.
+### Two Minds, One Shared Front-End
+
+But there is a deeper problem. As the evolutionary biologist Robin Dunbar showed, human language evolved for a specific purpose: to build theories of other minds. Hominin brains grew with the need to recursively model what others believe, what others believe others believe, and so on. Language is the front-end through which two back-ends co-build theories about one another and the world.
+
+When a human and an AI communicate through the same front-end — what looks like English — both sides are operating under a misguided assumption: that they speak the same language. The vocabulary and grammar are shared, but the implicit context is not. Humans evolved to decode one another with sparse signals because shared biology and culture fill the gaps. LLMs lack that shared context. The human gives an underspecified prompt (natural for human-to-human). The model one-shots a plausible response (rewarded by RLHF). And the output — optimized for the appearance of helpfulness rather than the fidelity of intent reconstruction — produces exactly the kind of low-information-density text that triggers skim mode. Attention disengages not because the human is careless, but because the output gives attention nothing to grip.
+
+The synthesis: if the core problem is two minds miscommunicating through a shared front-end, the solution is a process that makes the miscommunication visible and correctable. This is what Vygotsky does — from two directions.
+
+One side of the coin: a **narrative diary** and **engagement tracking** let Claude build a theory of *your* understanding — what you've demonstrated, where you're engaged, where you're drifting. This is Claude modeling your output.
+
+The other side: **intent decompression**, **recursive planning**, and **iterative enrichment** let Claude build a richer theory of *your intent* — what you actually mean, what you're trying to build, and where its model of you is wrong. This is Claude modeling your input.
+
+The human's job is to construct and maintain the persistent theory. The AI's job is twofold — **compile that theory into an artifact**, and **scaffold the theory-building itself**. The AI is not just a generator. It is a collaborator in the thinking — participating in the conversation that builds your understanding of what's being built, while building its own understanding of what you actually want.
 
 ---
 
@@ -215,37 +231,54 @@ The synthesis: the developer's job is to construct and maintain the theory. The 
 
 ## How It Works
 
-Vygotsky is a [Claude Code plugin](https://docs.anthropic.com/en/docs/claude-code/plugins) that restructures how Claude interacts with you. It replaces [superpowers](https://github.com/anthropics/claude-plugins-official).
+Vygotsky is a set of [Claude Code plugins](https://docs.anthropic.com/en/docs/claude-code/plugins) that restructure how Claude interacts with you. **vygotsky-code** replaces [superpowers](https://github.com/anthropics/claude-plugins-official) for software development. **vygotsky-knowledge** extends the same framework to writing, research, and knowledge work — designed for use with [Obsidian](https://obsidian.md/) vaults.
 
-### The Learner Diary
+### Getting Started with vygotsky-knowledge
+
+If you're using the knowledge work plugin with Obsidian, the setup is straightforward: open Claude Code inside your vault directory. Your vault is just a folder of markdown files — Claude can read and write them directly.
+
+```bash
+cd ~/path/to/your/vault
+claude
+```
+
+For search and structured queries across your vault, add the recommended MCP server:
+
+```bash
+claude mcp add smithery-ai/mcp-obsidian -- --vault ~/path/to/your/vault
+```
+
+This gives Claude tools to search your notes by content, read specific files, and understand the vault's structure. It reads the markdown files directly from disk — Obsidian doesn't need to be running.
+
+### The Diary
 
 Claude maintains a **narrative diary** of what you've demonstrated understanding of, organized by concept. No numbers, no grades, no scores — just timestamped observations:
 
 > *"Traced the race condition in the WebSocket handler back to the missing mutex on shared state. Explained why the lock needs to be per-connection, not global — understands the performance trade-off."*
 
-Why narrative instead of numeric? Because "React: 7/10" tells you nothing. "Understands the virtual DOM diffing algorithm and why keys matter for list reconciliation, but hasn't worked with concurrent mode or Suspense boundaries" tells you everything. Numbers compress away the information that matters.
+> *"Explained the tension between Dunbar's social brain hypothesis and distributed cognition clearly. Chose to frame language as UX paradigm rather than cognitive prerequisite — understands the theoretical stakes."*
 
-Concepts are cross-linked with `[[wiki-links]]`. The diary builds across sessions — so Claude never re-explains what you already know, and never assumes you know what you haven't demonstrated.
+Why narrative instead of numeric? Because "React: 7/10" tells you nothing. Numbers compress away the information that matters. The diary builds across sessions and across plugins — so Claude never re-explains what you already know, and never assumes you know what you haven't demonstrated.
 
 ### Theory Checks
 
-Throughout the session, Claude weaves in moments that check whether you're building a theory of the code — not after the fact, but as part of the conversation. When it's about to implement a design choice, it might walk you through the reasoning and ask if it matches your mental model. When you're navigating unfamiliar code, it might ask you to predict what a function does before reading it together. When a test fails, it might ask what you think went wrong before jumping to the fix.
+Throughout the session, Claude weaves in moments that check whether you're building a theory of the work — not after the fact, but as part of the conversation. In code, it might walk you through a design choice and ask if it matches your mental model. In writing, it might surface a structural tension and ask how you think about it. The form varies by domain. The purpose is the same: keeping you engaged with the substance.
 
 The tone is always collaborative — a colleague thinking out loud, not a teacher quizzing you:
 
 > *"So this migration drops the `legacy_users` table after copying to `users_v2`. If the copy fails halfway, we'd need to restore from backup — there's no rollback path built in. That feel right, or should we add a verification step?"*
 
-Never: *"Can you explain what this migration does?"*
+> *"We're arguing X rather than Y in section 3, which means the piece won't address Z. That the right call for this audience?"*
+
+Never: *"Can you explain what this migration does?"* Never: *"Do you understand the argument?"*
 
 The difficulty of the question is the same. The experience of being asked is completely different. One triggers defensiveness; the other triggers thinking.
-
-For destructive operations — force pushes, schema migrations, `rm -rf` — a hook enforces the check as a hard gate: Claude won't proceed until you've engaged with the consequences. But most theory checks are softer than that. They're woven into the flow of work, and they adapt: if you're clearly on top of the material, they fade. If you're rubber-stamping, they become more concrete.
 
 ### Engagement Tracking
 
 Three rubber stamps in a row — "looks good", "sure", "go ahead" — and Claude adjusts. Theory checks become more concrete. Batch sizes shrink. The interaction mode shifts to give you more surface area to engage with.
 
-The developer typing "ok" and "y" is present but not processing — germane cognitive load has dropped to zero. Vygotsky detects this and responds not with a penalty, but with a recalibration that makes re-engagement easier.
+The person typing "ok" and "y" is present but not processing — germane cognitive load has dropped to zero. Vygotsky detects this and responds not with a penalty, but with a recalibration that makes re-engagement easier.
 
 ### Four Interaction Modes
 
@@ -254,7 +287,7 @@ Vygotsky's central insight was that the Zone of Proximal Development is narrow, 
 |  | **High engagement** | **Low engagement** |
 |---|---|---|
 | **High skill** | **Extension** — scaffolding fades. Larger batches, light-touch theory maintenance. You drive. | **Sparring** — you have the skills but you're skimming. Claude surfaces trade-offs and asks for your reasoning on decisions that matter. |
-| **Building skill** | **Senior Peer** — the highest-leverage mode for growth. Claude breaks tasks into steps, invites you to predict outcomes, builds the theory collaboratively. | **Brake Pedal** — unfamiliar territory plus low engagement is the highest-risk state. One concept at a time. Walk through what the code actually does before changing it. |
+| **Building skill** | **Senior Peer** — the highest-leverage mode for growth. Claude breaks tasks into steps, invites you to predict outcomes, builds the theory collaboratively. | **Brake Pedal** — unfamiliar territory plus low engagement is the highest-risk state. One concept at a time. Walk through what's actually happening before changing it. |
 
 The modes are not rewards or punishments. Extension is where scaffolding has done its job and withdraws — this is the Vygotskian fade, not a gold star. Brake Pedal is not a penalty for being disengaged; it's the recognition that when someone has stopped processing (typing "ok", "sure", "go ahead"), pushing harder makes it worse. You shrink the scope until re-engagement becomes possible.
 
@@ -350,14 +383,26 @@ Vygotsky tries to.
 
 ## References
 
+### Coding
 - **METR** (2025). *Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity.* [metr.org](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/)
 - **Anthropic** (2026). *How AI Assistance Impacts the Formation of Coding Skills.* [anthropic.com/research](https://www.anthropic.com/research/learning-skills-with-ai)
 - **JetBrains** (2024–2025). *Developer Ecosystem Survey.* 24,534 developers, 194 countries.
+
+### Knowledge work
+- **Dell'Acqua, McFowland, Mollick et al.** (2023). *Navigating the Jagged Technological Frontier.* Harvard Business School Working Paper 24-013. 758 BCG consultants. [hbs.edu](https://www.hbs.edu/faculty/Pages/item.aspx?num=64700)
+- **Kusumegi et al.** (2025). *Scientific production in the era of large language models.* Science 390, 1240-1243. 2.1M preprints. [science.org](https://www.science.org/doi/10.1126/science.adw3000)
+- **Humlum & Vestergaard** (2025). *Large Language Models, Small Labor Market Effects.* NBER Working Paper 33777. 25,000 workers. [nber.org](https://www.nber.org/papers/w33777)
+- **Stanford HAI** (2024). *Hallucination-Free? Assessing the Reliability of Leading AI Legal Research Tools.* [hai.stanford.edu](https://hai.stanford.edu/news/ai-trial-legal-models-hallucinate-1-out-6-or-more-benchmarking-queries)
+- **Kosmyna et al.** (2025). *Your Brain on ChatGPT: Accumulation of Cognitive Debt.* MIT Media Lab. arXiv:2506.08872. [arxiv.org](https://arxiv.org/abs/2506.08872)
+
+### Foundations
 - **Peter Naur** (1985). *Programming as Theory Building.* Microprocessing and Microprogramming 15.
 - **Lev Vygotsky** (1978). *Mind in Society: The Development of Higher Psychological Processes.*
-- **Gloria Mark** (2023). *Attention Span: A Groundbreaking Way to Restore Balance, Happiness and Productivity.* HarperCollins.
+- **Robin Dunbar** (1998). *Grooming, Gossip, and the Evolution of Language.* Harvard University Press.
+- **Gloria Mark** (2023). *Attention Span.* HarperCollins.
 - **John Sweller** (1988). *Cognitive Load During Problem Solving.* Cognitive Science 12(2).
 - **Caltech** (2024). *The 10-Bit Bottleneck: Quantifying Conscious Information Processing.*
+- **Gerlich** (2025). *AI Tools in Society: Impacts on Cognitive Offloading and the Future of Critical Thinking.* Societies 15(6). [mdpi.com](https://www.mdpi.com/2075-4698/15/1/6)
 - **Quentin Rousseau** (2026). *One More Prompt: The Dopamine Trap of Agentic Coding.* [blog.quent.in](https://blog.quent.in/posts/2026/03/09/one-more-prompt-the-dopamine-trap-of-agentic-coding/)
 
 ---
