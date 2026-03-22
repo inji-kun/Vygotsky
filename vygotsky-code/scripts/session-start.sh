@@ -96,8 +96,8 @@ function parseEntries(filePath) {
   const entries = [];
   for (let i = 1; i + 3 < parts.length; i += 4) {
     const tag = parts[i+2] || null; // plugin tag, e.g. 'vygotsky-code'
-    // Filter: include if untagged (legacy) or tagged for this plugin
-    if (tag && tag !== PLUGIN_NAME) continue;
+    // Only include entries tagged for this plugin
+    if (tag !== PLUGIN_NAME) continue;
     entries.push({ timestamp: parts[i], evidence_type: parts[i+1], observation: parts[i+3].trim() });
   }
   return entries;
