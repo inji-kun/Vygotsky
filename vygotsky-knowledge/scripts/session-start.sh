@@ -92,10 +92,13 @@ function readSummary(concept) {
 function parseEntries(filePath) {
   let content;
   try { content = fs.readFileSync(filePath, 'utf8'); } catch { return []; }
-  const parts = content.split(/### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\][^\n]*\n/);
+  const parts = content.split(/### (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z) \[(\w+)\](?: \(([^)]+)\))?[^\n]*\n/);
   const entries = [];
-  for (let i = 1; i + 2 < parts.length; i += 3) {
-    entries.push({ timestamp: parts[i], evidence_type: parts[i+1], observation: parts[i+2].trim() });
+  for (let i = 1; i + 3 < parts.length; i += 4) {
+    const tag = parts[i+2] || null; // plugin tag, e.g. 'vygotsky-knowledge'
+    // Filter: include if untagged (legacy) or tagged for this plugin
+    if (tag && tag !== PLUGIN_NAME) continue;
+    entries.push({ timestamp: parts[i], evidence_type: parts[i+1], observation: parts[i+3].trim() });
   }
   return entries;
 }
