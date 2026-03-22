@@ -42,8 +42,8 @@ const cwd = process.cwd();
 
 const VYGOTSKY_DIR = path.join(os.homedir(), '.vygotsky');
 const DIARY_DIR = path.join(VYGOTSKY_DIR, 'diary');
-const SUMMARIES_DIR = path.join(VYGOTSKY_DIR, 'summaries', PLUGIN_NAME);
 const PLUGIN_NAME = process.env.VYGOTSKY_PLUGIN_NAME || 'vygotsky-code';
+const SUMMARIES_DIR = path.join(VYGOTSKY_DIR, 'summaries', PLUGIN_NAME);
 const PLUGIN_STATE = path.join(VYGOTSKY_DIR, 'plugins', PLUGIN_NAME);
 const ENGAGEMENT_PATH = path.join(PLUGIN_STATE, 'engagement.json');
 const SESSIONS_DIR = path.join(VYGOTSKY_DIR, 'sessions');
