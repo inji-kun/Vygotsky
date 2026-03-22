@@ -5,13 +5,16 @@
   },
   "plugins": [
     {
-      "name": "vygotsky",
-      "source": {
-        "source": "github",
-        "repo": "inji-kun/vygotsky"
-      },
+      "name": "vygotsky-code",
+      "source": "./vygotsky-code",
       "description": "Theory-building coding partner — ensures you understand the code being written",
-      "version": "0.3.0"
+      "version": "0.4.0"
+    },
+    {
+      "name": "vygotsky-knowledge",
+      "source": "./vygotsky-knowledge",
+      "description": "Theory-building knowledge work partner — ensures you understand the ideas being developed",
+      "version": "0.4.0"
     }
   ]
 }
