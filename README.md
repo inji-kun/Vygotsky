@@ -4,7 +4,7 @@
 
 <h1 align="center">Vygotsky</h1>
 
-<p align="center"><em>A theory-building coding partner for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a></em></p>
+<p align="center"><em>Theory-building partners for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a></em></p>
 
 <p align="center">
   <a href="#tldr">TL;DR</a> · <a href="#install">Install</a> · <a href="#one-more-prompt">The Problem</a> · <a href="#the-evidence">The Evidence</a> · <a href="#how-it-works">How It Works</a>
@@ -14,7 +14,9 @@
 
 <a id="tldr"></a>
 
-**TL;DR:** AI coding tools produce code without understanding. In controlled studies, developers who delegate to AI score below 40% on conceptual mastery; developers who *inquire* with AI score 65%+. Vygotsky is a Claude Code plugin that structures every session around inquiry — building your mental model of the code alongside the code itself. It maintains a narrative learner diary, weaves theory checks into the conversation, tracks engagement, and adapts its interaction mode to where you are.
+**TL;DR:** AI tools produce output without understanding. In controlled studies, people who delegate to AI score below 40% on conceptual mastery; people who *inquire* with AI score 65%+. Vygotsky is a set of Claude Code plugins that structure every session around mutual theory building. One side of the coin: a narrative diary and engagement tracking let Claude build a theory of *your* understanding — what you've demonstrated, where you're engaged, where you're drifting. The other side: intent decompression, recursive planning, and iterative enrichment let Claude build a richer theory of *your intent* — what you actually mean, what you're trying to build, and where its model of you is wrong.
+
+This is a research project, not a finished product. The theory is grounded in real evidence (see below). The implementation is careful. But it hasn't been validated at scale — we're sharing it because we think the ideas matter and we want people to try them and tell us what happens.
 
 ## Install
 
@@ -22,22 +24,55 @@ From inside Claude Code:
 
 ```
 /plugin marketplace add inji-kun/vygotsky
-/plugin install vygotsky@vygotsky
 ```
 
-If you have superpowers enabled, disable it first — Vygotsky subsumes its capabilities:
+### vygotsky-code — for software development
+
+```
+/plugin install vygotsky-code@vygotsky
+```
+
+Replaces [superpowers](https://github.com/anthropics/claude-plugins-official). If you have superpowers enabled, disable it first:
 
 ```
 /plugin disable superpowers
 ```
 
-From a local checkout: `claude --plugin-dir ./vygotsky`
+### vygotsky-knowledge — for writing, research, and knowledge work
+
+*Early stage.* The same framework adapted for knowledge work — writing proposals, synthesizing research, building arguments. The theory says this should work across any domain where a human and an AI are co-building an artifact. This is our first attempt at proving that claim.
+
+```
+/plugin install vygotsky-knowledge@vygotsky
+```
+
+**Recommended: vault access** (so Claude can read/search your Obsidian vault):
+
+```
+claude mcp add smithery-ai/mcp-obsidian -- --vault /path/to/your/vault
+```
+
+**Optional: document editing** (for docx/pptx/xlsx/pdf — requires LibreOffice):
+
+```
+/plugin marketplace add anthropics/skills
+/plugin install document-skills@anthropic-agent-skills
+```
+
+### Both plugins
+
+You can install both. They share a diary (entries tagged by plugin) but track engagement independently — because the same person can be an expert in one domain and building skill in another.
+
+```
+/plugin install vygotsky-code@vygotsky
+/plugin install vygotsky-knowledge@vygotsky
+```
 
 **Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with plugin support. No additional dependencies — Node.js is already present. No permissions setup needed — diary writes use Claude's native Write tool.
 
 ---
 
-*The rest of this is an essay about why this plugin exists. If you just want to use it, you're done — it's installed.*
+*The rest of this is an essay about why these plugins exist. If you just want to try them, you're done — they're installed.*
 
 ---
 
@@ -225,7 +260,9 @@ The modes are not rewards or punishments. Extension is where scaffolding has don
 
 Transitions happen within a session and in both directions. You might start in Senior Peer, demonstrate solid understanding, shift to Extension — then hit an unfamiliar subsystem and move back to Senior Peer. Claude never announces transitions — the shift is felt in the pace and depth of interaction, not declared. The quadrant is Claude's internal judgment, continuously updated from the live conversation.
 
-### 10 Workflow Skills
+### Workflow Skills
+
+**vygotsky-code** (10 skills):
 
 | Skill | Core principle |
 |-------|---------------|
@@ -240,43 +277,58 @@ Transitions happen within a session and in both directions. You might start in S
 | **finishing-a-development-branch** | Merge strategies with enough context to choose |
 | **writing-skills** | Meta-skill for extending Vygotsky while preserving its soul |
 
+**vygotsky-knowledge** (7 skills):
+
+| Skill | Core principle |
+|-------|---------------|
+| **brainstorming** | No draft until you've *engaged* with the argument — not just approved the framing |
+| **iterative-enrichment** | Each intermediate is a mirror of intent at a fidelity where correction is cheap |
+| **writing-plans** | Tasks track both the artifact and the theory being built |
+| **executing-plans** | Batch reports: what was written, key argument choices, what this means |
+| **systematic-debugging** | No revision without diagnosis. Where is the argument actually weak? |
+| **verification-before-completion** | Re-read the artifact against its stated goals. Evidence before assertions. |
+| **writing-skills** | Meta-skill for extending Vygotsky while preserving its soul |
+
 ---
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  SKILL.md — Claude's operating posture          │
-│  "The soul." Loaded at session start.           │
-│  Tone, theory-building discipline,              │
-│  anti-sycophancy engineering.                   │
+│  Plugin Marketplace                             │
+│  vygotsky-code    — software development        │
+│  vygotsky-knowledge — writing & research        │
 ├─────────────────────────────────────────────────┤
-│  Hooks — Safety floor + engagement + pacing     │
-│  SessionStart: injects SKILL + session brief    │
+│  Per-Plugin Layer                               │
+│  SKILL.md — domain-specific operating posture   │
+│  session-start.sh — domain-specific brief       │
+│  Workflow skills — domain-specific processes     │
+├─────────────────────────────────────────────────┤
+│  Shared Hooks — Safety floor + engagement       │
 │  PreToolUse: theory-check on destructive ops    │
 │  PreToolUse: burst pacing (mid-turn check)      │
 │  PostToolUse: burst counter on write ops        │
 │  Stop: queues theory-check nudge if passive     │
-│  UserPromptSubmit: passive engagement detection │
+│  UserPromptSubmit: passive engagement detection  │
 ├─────────────────────────────────────────────────┤
-│  File-based state — ~/.vygotsky/                │
-│  diary/ — narrative observations per concept    │
+│  Shared State — ~/.vygotsky/                    │
+│  diary/ — shared, entries tagged by plugin      │
 │  summaries/ — synthesized concept summaries     │
-│  engagement.json — prompt signal log            │
+│  plugins/{name}/ — per-plugin engagement state  │
 │  No MCP server. No external dependencies.       │
 └─────────────────────────────────────────────────┘
 ```
 
-State persists in `~/.vygotsky/` across sessions.
+State persists in `~/.vygotsky/` across sessions. The diary is shared across plugins — the same person's understanding is one continuous model. Engagement tracking is per-plugin — because the same person can be an expert in code and a novice in academic writing.
 
 ---
 
 ## What This Looks Like in Practice
 
-A developer using Vygotsky finishes a session having:
+A person using Vygotsky finishes a session having:
 
-- **Constructed a theory** of the software being built — their primary contribution
-- **Produced working code** that faithfully compiles that theory — the AI's contribution
+- **Constructed a theory** of the work being built — their primary contribution
+- **Produced an artifact** that faithfully compiles that theory — the AI's contribution
 - **Built understanding through collaboration** — the AI scaffolded the theory construction through well-placed questions, walkthrough moments, and predictions
 - **Developed skills that transfer** beyond this session — recorded in the diary
 
@@ -288,9 +340,9 @@ The felt productivity matches the actual productivity. The satisfaction doesn't 
 
 ## Related Work
 
-Most AI coding tools optimize for task completion speed — how fast can the code be written, how little does the developer need to do. That's a reasonable goal, and these tools are genuinely good at it. But it leaves open the question of what happens to the developer's understanding over time.
+Most AI tools optimize for task completion speed — how fast can the output be produced, how little does the person need to do. That's a reasonable goal, and these tools are genuinely good at it. But it leaves open the question of what happens to the person's understanding over time.
 
-AI coding agents (Claude Code, Cursor, Copilot) optimize for getting the code written. Multi-agent terminals (cmux, Architect, Termoil) optimize for throughput across parallel tasks. AI code review tools (CodeRabbit, Codacy) optimize for correctness. Vibe coding tools (Cursor, Windsurf) optimize for ease of use. None of them ask whether you understood what was produced, or whether you could reproduce, debug, or extend it on your own.
+AI coding agents (Claude Code, Cursor, Copilot) optimize for getting code written. AI writing tools (ChatGPT, Claude.ai) optimize for producing polished text. Multi-agent terminals (cmux, Architect) optimize for throughput. None of them ask whether you understood what was produced, or whether you could reproduce, extend, or defend it on your own.
 
 Vygotsky tries to.
 
@@ -313,7 +365,8 @@ Vygotsky tries to.
 ## Development
 
 ```bash
-claude --plugin-dir .    # run locally
+claude --plugin-dir ./vygotsky-code       # run code plugin locally
+claude --plugin-dir ./vygotsky-knowledge  # run knowledge plugin locally
 ```
 
 ## License
