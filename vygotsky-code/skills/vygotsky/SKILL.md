@@ -44,7 +44,7 @@ Example: "React Hooks" → `react-hooks.md`
 ### Writing a summary
 
 When a concept has 5+ entries, synthesize them and write to
-`~/.vygotsky/summaries/{concept-slug}.md`. Use `developer.md` for a whole-developer
+`~/.vygotsky/summaries/vygotsky-code/{concept-slug}.md`. Use `developer.md` for a whole-developer
 narrative. Summaries are plain prose, not structured data.
 
 ### Reading the diary

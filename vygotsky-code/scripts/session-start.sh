@@ -20,7 +20,7 @@ SESSIONS_DIR="$HOME/.vygotsky/sessions"
 mkdir -p "$SESSIONS_DIR"
 mkdir -p "$STATE_DIR"
 mkdir -p "$HOME/.vygotsky/diary"
-mkdir -p "$HOME/.vygotsky/summaries"
+mkdir -p "$HOME/.vygotsky/summaries/$PLUGIN_NAME"
 
 # --- Clear turn-level state from prior session ---
 echo 0 > "$STATE_DIR/burst_counter"
@@ -42,7 +42,7 @@ const cwd = process.cwd();
 
 const VYGOTSKY_DIR = path.join(os.homedir(), '.vygotsky');
 const DIARY_DIR = path.join(VYGOTSKY_DIR, 'diary');
-const SUMMARIES_DIR = path.join(VYGOTSKY_DIR, 'summaries');
+const SUMMARIES_DIR = path.join(VYGOTSKY_DIR, 'summaries', PLUGIN_NAME);
 const PLUGIN_NAME = process.env.VYGOTSKY_PLUGIN_NAME || 'vygotsky-code';
 const PLUGIN_STATE = path.join(VYGOTSKY_DIR, 'plugins', PLUGIN_NAME);
 const ENGAGEMENT_PATH = path.join(PLUGIN_STATE, 'engagement.json');
@@ -103,12 +103,14 @@ function parseEntries(filePath) {
   return entries;
 }
 
-function extractLinks(content) {
+function extractLinksFromEntries(entries) {
   const links = new Set();
-  let m;
   const re = /\[\[([^\]]+)\]\]/g;
-  while ((m = re.exec(content)) !== null) {
-    links.add(slugify(m[1]));
+  for (const e of entries) {
+    let m;
+    while ((m = re.exec(e.observation)) !== null) {
+      links.add(slugify(m[1]));
+    }
   }
   return links;
 }
@@ -159,8 +161,7 @@ if (strong.length) {
     } else {
       lines.push('  - ' + s.concept + ' (' + s.count + ' entries, strongest: ' + s.strongest + ')');
     }
-    const content = fs.readFileSync(s.full, 'utf8');
-    const linked = extractLinks(content);
+    const linked = extractLinksFromEntries(parseEntries(s.full));
     linked.delete(s.concept);
     if (linked.size) {
       lines.push('    -> linked to: ' + [...linked].slice(0, 3).join(', '));
@@ -236,8 +237,9 @@ if (calibrationNotes.length) {
 // Concept topology summary
 let edgeCount = 0;
 for (const cf of conceptFiles) {
-  const content = fs.readFileSync(cf.full, 'utf8');
-  const linked = extractLinks(content);
+  const entries = parseEntries(cf.full);
+  if (!entries.length) continue;
+  const linked = extractLinksFromEntries(entries);
   linked.delete(cf.stem);
   edgeCount += linked.size;
 }

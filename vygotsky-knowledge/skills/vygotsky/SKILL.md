@@ -48,7 +48,7 @@ Example: "Grounded Theory" → `grounded-theory.md`
 ### Writing a summary
 
 When a concept has 5+ entries, synthesize them and write to
-`~/.vygotsky/summaries/{concept-slug}.md`. Use `thinker.md` for a whole-person
+`~/.vygotsky/summaries/vygotsky-knowledge/{concept-slug}.md`. Use `thinker.md` for a whole-person
 narrative. Summaries are plain prose, not structured data.
 
 ### Reading the diary
