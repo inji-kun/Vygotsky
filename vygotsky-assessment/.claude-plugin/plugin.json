@@ -1,0 +1,10 @@
+{
+  "name": "vygotsky-assessment",
+  "description": "Dynamic assessor — discovers and tracks the student's Zone of Proximal Development",
+  "version": "0.1.0",
+  "author": { "name": "inji-kun" },
+  "license": "MIT",
+  "homepage": "https://github.com/inji-kun/vygotsky",
+  "repository": "https://github.com/inji-kun/vygotsky",
+  "keywords": ["dynamic-assessment", "zpd", "vygotsky", "education", "knowledge-graph", "graphiti"]
+}

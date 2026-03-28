@@ -15,6 +15,12 @@
       "source": "./vygotsky-knowledge",
       "description": "Theory-building knowledge work partner — ensures you understand the ideas being developed",
       "version": "0.4.0"
+    },
+    {
+      "name": "vygotsky-assessment",
+      "source": "./vygotsky-assessment",
+      "description": "Dynamic assessor — discovers and tracks the student's Zone of Proximal Development",
+      "version": "0.1.0"
     }
   ]
 }
