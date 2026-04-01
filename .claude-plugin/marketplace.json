@@ -8,7 +8,7 @@
       "name": "vygotsky-code",
       "source": {
         "source": "git-subdir",
-        "url": "inji-kun/vygotsky",
+        "url": "https://github.com/inji-kun/vygotsky.git",
         "path": "vygotsky-code",
         "ref": "main"
       },
@@ -19,7 +19,7 @@
       "name": "vygotsky-knowledge",
       "source": {
         "source": "git-subdir",
-        "url": "inji-kun/vygotsky",
+        "url": "https://github.com/inji-kun/vygotsky.git",
         "path": "vygotsky-knowledge",
         "ref": "main"
       },
@@ -30,7 +30,7 @@
       "name": "vygotsky-assessment",
       "source": {
         "source": "git-subdir",
-        "url": "inji-kun/vygotsky",
+        "url": "https://github.com/inji-kun/vygotsky.git",
         "path": "vygotsky-assessment",
         "ref": "main"
       },
