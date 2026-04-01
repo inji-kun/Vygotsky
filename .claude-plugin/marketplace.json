@@ -6,19 +6,34 @@
   "plugins": [
     {
       "name": "vygotsky-code",
-      "source": "./vygotsky-code",
+      "source": {
+        "source": "git-subdir",
+        "url": "inji-kun/vygotsky",
+        "path": "vygotsky-code",
+        "ref": "main"
+      },
       "description": "Theory-building coding partner — ensures you understand the code being written",
       "version": "0.4.0"
     },
     {
       "name": "vygotsky-knowledge",
-      "source": "./vygotsky-knowledge",
+      "source": {
+        "source": "git-subdir",
+        "url": "inji-kun/vygotsky",
+        "path": "vygotsky-knowledge",
+        "ref": "main"
+      },
       "description": "Theory-building knowledge work partner — ensures you understand the ideas being developed",
       "version": "0.4.0"
     },
     {
       "name": "vygotsky-assessment",
-      "source": "./vygotsky-assessment",
+      "source": {
+        "source": "git-subdir",
+        "url": "inji-kun/vygotsky",
+        "path": "vygotsky-assessment",
+        "ref": "main"
+      },
       "description": "Dynamic assessor — discovers and tracks the student's Zone of Proximal Development",
       "version": "0.1.0"
     }
