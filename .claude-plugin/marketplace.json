@@ -1,17 +1,29 @@
 {
-  "marketplace": "vygotsky",
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "vygotsky-marketplace",
+  "owner": {
+    "name": "inji-kun",
+    "email": "user@example.com"
+  },
+  "description": "A collection of plugins for the Vygotsky project.",
   "plugins": [
     {
       "name": "vygotsky-assessment",
-      "repository": "https://github.com/inji-kun/vygotsky-assessment.git"
+      "description": "Vygotsky Assessment Plugin",
+      "category": "development",
+      "source": "github:inji-kun/vygotsky-assessment"
     },
     {
       "name": "vygotsky-code",
-      "repository": "https://github.com/inji-kun/vygotsky-code.git"
+      "description": "Vygotsky Code Plugin",
+      "category": "development",
+      "source": "github:inji-kun/vygotsky-code"
     },
     {
       "name": "vygotsky-knowledge",
-      "repository": "https://github.com/inji-kun/vygotsky-knowledge.git"
+      "description": "Vygotsky Knowledge Plugin",
+      "category": "development",
+      "source": "github:inji-kun/vygotsky-knowledge"
     }
   ]
 }
