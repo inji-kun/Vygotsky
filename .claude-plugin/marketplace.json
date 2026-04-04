@@ -1,41 +1,17 @@
 {
-  "name": "vygotsky",
-  "owner": {
-    "name": "inji-kun"
-  },
+  "marketplace": "vygotsky",
   "plugins": [
     {
+      "name": "vygotsky-assessment",
+      "repository": "https://github.com/inji-kun/vygotsky-assessment.git"
+    },
+    {
       "name": "vygotsky-code",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/inji-kun/vygotsky.git",
-        "path": "vygotsky-code",
-        "ref": "main"
-      },
-      "description": "Theory-building coding partner — ensures you understand the code being written",
-      "version": "0.4.0"
+      "repository": "https://github.com/inji-kun/vygotsky-code.git"
     },
     {
       "name": "vygotsky-knowledge",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/inji-kun/vygotsky.git",
-        "path": "vygotsky-knowledge",
-        "ref": "main"
-      },
-      "description": "Theory-building knowledge work partner — ensures you understand the ideas being developed",
-      "version": "0.4.0"
-    },
-    {
-      "name": "vygotsky-assessment",
-      "source": {
-        "source": "git-subdir",
-        "url": "https://github.com/inji-kun/vygotsky.git",
-        "path": "vygotsky-assessment",
-        "ref": "main"
-      },
-      "description": "Dynamic assessor — discovers and tracks the student's Zone of Proximal Development",
-      "version": "0.1.0"
+      "repository": "https://github.com/inji-kun/vygotsky-knowledge.git"
     }
   ]
 }
