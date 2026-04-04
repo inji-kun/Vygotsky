@@ -11,19 +11,31 @@
       "name": "vygotsky-assessment",
       "description": "Vygotsky Assessment Plugin",
       "category": "development",
-      "source": "github:inji-kun/vygotsky-assessment"
+      "source": {
+        "source": "url",
+        "url": "https://github.com/inji-kun/vygotsky-assessment.git",
+        "sha": "37683f4ad1af7e708b3605f3dbaf668ebcc09f71"
+      }
     },
     {
       "name": "vygotsky-code",
       "description": "Vygotsky Code Plugin",
       "category": "development",
-      "source": "github:inji-kun/vygotsky-code"
+      "source": {
+        "source": "url",
+        "url": "https://github.com/inji-kun/vygotsky-code.git",
+        "sha": "016d9e2c527f839086b2262a9a6fae445a2f7b21"
+      }
     },
     {
       "name": "vygotsky-knowledge",
       "description": "Vygotsky Knowledge Plugin",
       "category": "development",
-      "source": "github:inji-kun/vygotsky-knowledge"
+      "source": {
+        "source": "url",
+        "url": "https://github.com/inji-kun/vygotsky-knowledge.git",
+        "sha": "96589d071395c843cc00c173477460e69f1e2a9a"
+      }
     }
   ]
 }
