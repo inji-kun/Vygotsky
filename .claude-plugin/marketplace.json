@@ -14,7 +14,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/inji-kun/vygotsky-assessment.git",
-        "sha": "37683f4ad1af7e708b3605f3dbaf668ebcc09f71"
+        "sha": "edb814e2094307ef9f3235319db846b1a521a134"
       }
     },
     {
@@ -24,7 +24,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/inji-kun/vygotsky-code.git",
-        "sha": "016d9e2c527f839086b2262a9a6fae445a2f7b21"
+        "sha": "fc4f078e91d9dbf2063533c6ae16e4643f2c933e"
       }
     },
     {
@@ -34,7 +34,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/inji-kun/vygotsky-knowledge.git",
-        "sha": "96589d071395c843cc00c173477460e69f1e2a9a"
+        "sha": "4c8effd9a6c7b63f6d2980abb373ca37942fe4c4"
       }
     }
   ]
